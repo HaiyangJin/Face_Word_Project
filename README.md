@@ -1,2 +1,2 @@
 # Face_Word_Project
-This is the code used for the FaceWord Project
+Here are the codes used for the FaceWord Project
