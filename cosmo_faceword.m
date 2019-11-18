@@ -120,13 +120,14 @@ for iLabel = 1:nLabel
         %% Convert the ds_subj to ds for univariate analysis
         nRowUni = size(ds_subj.samples, 1);
         
+        this_uni_table = table;
         this_uni_table.ExpCode = repmat(expCode, nRowUni, 1);
         this_uni_table.ROI = repmat({thisLabelName}, nRowUni, 1);
         this_uni_table.nVertices = repmat(nVertex, nRowUni, 1);
         this_uni_table.LabelSize = repmat(labelsize, nRowUni, 1);
         this_uni_table.SubjCode = repmat({thisSubj}, nRowUni, 1);
         
-        this_uni_table = fs_cosmo_univariate(ds_subj);
+        this_uni_table = [this_uni_table, fs_cosmo_univariate(ds_subj)]; %#ok<AGROW>
 
         uniTable = [uniTable; this_uni_table]; %#ok<AGROW>
 
