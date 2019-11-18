@@ -31,6 +31,7 @@ measure = @cosmo_crossvalidation_measure;  % function handle
 args.output = 'fold_predictions';
 
 % Pre-define the table for saving (accuracy) data
+uniTable = table;
 outputTable = table;
 
 %% Run the analysis 
@@ -40,11 +41,10 @@ for iLabel = 1:nLabel
     
     thisLabelName = labelNames{iLabel};
     
-    if contains(thisLabelName, 'lh'); hemi = 'lh'; end
-    if contains(thisLabelName, 'rh'); hemi = 'rh'; end
+    hemi = fs_hemi(thisLabelName);
     
     % Run the analysis for each subject separately
-    for iSubj = 1:nSubj
+    for iSubj = [1:5, 7:nSubj] % 1:nSubj
         
         expCode = ceil(iSubj/(nSubj/2));
         
@@ -64,12 +64,18 @@ for iLabel = 1:nLabel
         end
         
         thisLabelFile = fullfile(thisLabelPath.folder, thisLabelPath.name);
+        
         % converting the label file to logical matrix
         labelMatrix = importdata(thisLabelFile, ' ', 2); % read the label file
-        verticeROI = labelMatrix.data(:,1);
+        vertexROI = labelMatrix.data(:,1);
+        nVertex = str2double(labelMatrix.textdata{2}); % number of vertices
         
         % path to bold files
         boldPath = fullfile(fmriPath, thisSubj, 'bold/');
+        
+         % calculate the size of this label file
+        locBetaFile = fullfile(boldPath, ['loc_self.' hemi], 'beta.nii.gz');
+        labelsize = fs_labelsize(thisSubj, thisLabelFile, locBetaFile);
                 
         % Obtain the run (folder) names
         runList = importdata(fullfile(boldPath, 'run_Main.txt'))';
@@ -91,7 +97,7 @@ for iLabel = 1:nLabel
             
             % apply the mask
             roiMask = zeros(1, size(dt_all.samples, 2));
-            roiMask(verticeROI) = 1; 
+            roiMask(vertexROI) = 1; 
             this_dt = cosmo_slice(dt_all, logical(roiMask), 2); % apply the roi mask to the whole dataset
             
             % add attributes
@@ -170,7 +176,10 @@ for iLabel = 1:nLabel
                 
                 tmpoutput.ExpCode = repmat(expCode, nRowTemp, 1);
                 tmpoutput.ROI = repmat({thisLabelName}, nRowTemp, 1);
+                tmpoutput.nVertices = repmat(nVertex, nRowTemp, 1);
+                tmpoutput.LabelSize = repmat(labelsize, nRowTemp, 1);
                 tmpoutput.SubjCode = repmat({thisSubj}, nRowTemp, 1);
+                
                 tmpoutput.ClassifyPair = repmat({[thisPair{1}, '-', thisPair{2}]}, nRowTemp, 1);
                 tmpoutput.Classifier = repmat(thisClassfifier, nRowTemp, 1);
                 
