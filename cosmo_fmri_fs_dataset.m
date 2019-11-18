@@ -1,4 +1,4 @@
-function ds=cosmo_fmri_dataset(filename, varargin)
+function ds=cosmo_fmri_fs_dataset(filename, varargin)
 % load an fmri volumetric dataset
 %
 % ds = cosmo_fmri_dataset(filename, [,'mask',mask],...
@@ -297,8 +297,17 @@ function ds_all=convert_to_dataset(fn, params)
                 original_data=data;
             end
 
-            data=data_converter(data_reader(original_data, raw_header, ...
-                                                volumes_or_empty), []);
+%%%%%%%%%%%%%%% load freesurfer data with load_nifti %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% added by Haiyang Jin %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            datasamples = load_nifti(original_data);
+            data = datasamples.vol(:, :, :, 1:8);
+            
+%             data=data_converter(data_reader(original_data, raw_header, ...
+%                                                 volumes_or_empty), []);
+               
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  
         else
             % all data is probably already in memory, so select subset
             % of volumes through the converter
