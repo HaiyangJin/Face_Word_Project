@@ -117,6 +117,19 @@ for iLabel = 1:nLabel
         % stack multiple ds.sample
         ds_subj = cosmo_stack(ds_cell,1);
         
+        %% Convert the ds_subj to ds for univariate analysis
+        nRowUni = size(ds_subj.samples, 1);
+        
+        this_uni_table.ExpCode = repmat(expCode, nRowUni, 1);
+        this_uni_table.ROI = repmat({thisLabelName}, nRowUni, 1);
+        this_uni_table.nVertices = repmat(nVertex, nRowUni, 1);
+        this_uni_table.LabelSize = repmat(labelsize, nRowUni, 1);
+        this_uni_table.SubjCode = repmat({thisSubj}, nRowUni, 1);
+        
+        this_uni_table = fs_cosmo_univariate(ds_subj);
+
+        uniTable = [uniTable; this_uni_table]; %#ok<AGROW>
+
         
         %% Run MVPA with CoSMoMVPA
         %     % remove constant features
@@ -206,6 +219,11 @@ save(fn_cosmo, 'outputTable');
 outputTable(:, 'Confusion') = [];
 writetable(outputTable, [fn_cosmo, '.xlsx']);
 writetable(outputTable, [fn_cosmo, '.csv']);
+
+fn_uni = fullfile('~', 'Desktop', 'FaceWord_Uni');
+save(fn_uni, 'uniTable');
+writetable(uniTable, [fn_uni, '.xlsx']);
+writetable(uniTable, [fn_uni, '.csv']);
 
 % %% Test
 % boldfiledir = fullfile(boldPath, 'main_sm0_self1.rh', 'beta.nii.gz');
