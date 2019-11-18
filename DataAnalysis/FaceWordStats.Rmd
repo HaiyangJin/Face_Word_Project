@@ -1,0 +1,25 @@
+---
+title: "Face Word Projects -- Data Analysis"
+author: "[Haiyang Jin](https://haiyangjin.github.io/)"
+date: "`r format(Sys.time(), '%d-%m-%Y')`"
+output:
+  html_document:
+    df_print: paged
+    number_sections: true
+    toc: true
+    toc_depth: 4
+    toc_float: 
+      collapsed: true
+      smooth_scroll: false
+    includes:
+      after_body: Utilities/footer.html
+---
+
+# Preparations
+
+
+# Versions of packages used
+```{r versions}
+# rstudioapi::versionInfo()
+sessionInfo()
+```
