@@ -44,7 +44,7 @@ for iLabel = 1:nLabel
     hemi = fs_hemi(thisLabelName);
     
     % Run the analysis for each subject separately
-    for iSubj = [1:5, 7:nSubj] % 1:nSubj
+    for iSubj = 1:nSubj
         
         expCode = ceil(iSubj/(nSubj/2));
         
@@ -215,13 +215,13 @@ for iLabel = 1:nLabel
 end
 
 % save the output results
-fn_cosmo = fullfile('~', 'Desktop', 'FaceWord_Cosmo');
+fn_cosmo = fullfile('~', 'Desktop', 'FaceWord_CosmoMVPA');
 save(fn_cosmo, 'outputTable');
 outputTable(:, 'Confusion') = [];
 writetable(outputTable, [fn_cosmo, '.xlsx']);
 writetable(outputTable, [fn_cosmo, '.csv']);
 
-fn_uni = fullfile('~', 'Desktop', 'FaceWord_Uni');
+fn_uni = fullfile('~', 'Desktop', 'FaceWord_Univariate');
 save(fn_uni, 'uniTable');
 writetable(uniTable, [fn_uni, '.xlsx']);
 writetable(uniTable, [fn_uni, '.csv']);
