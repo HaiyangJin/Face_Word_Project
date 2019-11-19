@@ -103,7 +103,7 @@ for iLabel = 1:nLabel
             % add attributes
             thisRunFolder = fullfile(boldPath, runNames{iRun});
             parFileDir = dir(fullfile(thisRunFolder, 'main.par'));
-            parInfo = fs_readpar(fullfile(parFileDir.folder, parFileDir.name), 1);
+            parInfo = fs_readpar(fullfile(parFileDir.folder, parFileDir.name));
             
             this_dt.sa.targets = parInfo.Condition;
             this_dt.sa.labels = parInfo.Label;
