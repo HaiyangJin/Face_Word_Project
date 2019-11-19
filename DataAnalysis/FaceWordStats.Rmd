@@ -16,6 +16,159 @@ output:
 ---
 
 # Preparations
+```{r preparation}
+# load library
+library(tidyverse)
+library(afex)
+library(lme4)
+library(lmerTest)
+library(emmeans)
+
+```
+
+# Load and clean data 
+```{r assign filenames}
+# assign filenames
+fn_univar <- "FaceWord_Uni.csv"
+fn_cosmo <- "FaceWord_Cosmo.csv"
+
+```
+
+```{r fucntion for split data into two experiments}
+splitexp <- function(df, expCode) {
+  df%>% 
+    filter(ExpCode == expCode) %>% 
+    mutate(FaceWord = as.factor(FaceWord))
+}
+
+```
+
+## Data for univarite analysis
+```{r load data file for univariate analysis}
+# load data file for univerate analysis
+df_univar <- read.csv(fn_univar)
+
+str(df_univar)
+```
+
+```{r clean the univariate data}
+df_clean_univar <- {
+  df_univar %>% 
+    separate(Conditions, c("FaceWord", "Layout"), "_") %>% # separate the conditions into two IVs
+    mutate(# FaceWord = as.factor(FaceWord),
+           Layout = as.factor(Layout)) %>% # convert the two IVs to factors
+    select(ExpCode, ROI, SubjCode, FaceWord, Layout, Resp) 
+}
+
+str(df_clean_univar)
+```
+
+```{r aggregate data for anova}
+df_univar_agg <- {
+  df_clean_univar %>% 
+    group_by(ExpCode, ROI, SubjCode, FaceWord, Layout) %>% 
+    summarize(meanResp = mean(Resp), Count = n()) %>% 
+    ungroup()
+}
+
+str(df_univar_agg)
+```
+
+
+## Data from CoSMoMVPA
+```{r load data file from cosmoMVPA}
+df_mvpa <- read.csv(fn_cosmo)
+
+str(df_mvpa)
+```
+
+```{r clean the cosmomvpa data}
+df_clean_mvpa <- {
+  df_mvpa %>% 
+    select(ExpCode, ROI, SubjCode, ClassifyPair, Predicted, Targets, ACC)
+}
+
+str(df_clean_mvpa)
+```
+
+```{r calculate accuracy for each condition}
+df_mvpa_acc <- {
+  df_clean_mvpa %>% 
+    select(-c(Predicted, Targets)) %>% # remove these two columns
+    group_by(ExpCode, ROI, SubjCode, ClassifyPair) %>% # divide the data into groups by these columns 
+    summarize(Accuracy = mean(ACC), Count = n())
+}
+```
+
+# ROI information
+```{r roi information}
+df_univar %>% 
+  select(ExpCode, ROI, SubjCode, nVertices, LabelSize) %>% 
+  distinct()
+```
+
+# Experiment 1: faces and words
+## Univariate analysis
+```{r only keep the univariate data for E1}
+df_univar_E1 <- splitexp(df_clean_univar, 1)
+df_univar_agg_E1 <- splitexp(df_univar_agg, 1)
+
+```
+
+### rm-ANOVA 
+```{r anova for univariate E1}
+anova_uni_E1 <- aov_4(meanResp ~ FaceWord * Layout + (1 + FaceWord * Layout | SubjCode), data = df_univar_agg_E1)
+
+summary(anova_uni_E1)
+```
+
+```{r estimated marginal means for univairate E1}
+
+emm_uni_E1 <- emmeans(anova_uni_E1, ~ FaceWord * Layout)
+
+emm_uni_E1
+```
+
+```{r}
+# contrast(emm_uni_E1, "pairwise")
+# 
+# contrast(emm_uni_E1, interaction = "pairwise")
+```
+
+### Linear mixed model
+```{r lmm for univariate E1}
+
+# lmm.uni.E1 <- lmer(Resp ~ FaceWord * Layout + (1 + FaceWord * Layout | SubjCode), data = df_univar_E1)
+
+
+```
+
+# Experiment 2: Chinese and English
+## Univariate analysis
+```{r only keep the univariate data for E2}
+df_univar_E2 <- splitexp(df_clean_univar, 2)
+df_univar_agg_E2 <- splitexp(df_univar_agg, 2)
+```
+
+### rm-ANOVA 
+```{r anova for univariate E2}
+anova_uni_E2 <- aov_4(meanResp ~ FaceWord * Layout + (1 + FaceWord * Layout | SubjCode), data = df_univar_agg_E2)
+
+summary(anova_uni_E2)
+```
+
+```{r estimated marginal means for univairate E2}
+
+emm_uni_E2 <- emmeans(anova_uni_E2, ~ FaceWord * Layout)
+
+emm_uni_E2
+```
+
+```{r}
+# contrast(emm_uni_E2, "pairwise")
+# 
+# contrast(emm_uni_E2, interaction = "pairwise")
+```
 
 
 # Versions of packages used
