@@ -32,14 +32,21 @@ library(emmeans)
 fn_univar <- "FaceWord_Uni.csv"
 fn_cosmo <- "FaceWord_Cosmo.csv"
 
-```
+# set the order of levels in factors
+facewordOrder <- c("face", "word")
+wordsOrder <- c("Chinese", "English")
+layoutOrder <- c("intact", "exchange", "top", "bottom")
 
-```{r fucntion for split data into two experiments}
-splitexp <- function(df, expCode) {
-  df%>% 
-    filter(ExpCode == expCode) %>% 
-    mutate(FaceWord = as.factor(FaceWord))
-}
+pairOrder_E1 <- c("face_intact-word_intact",
+                  "face_intact-face_exchange",
+                  "face_top-face_bottom",
+                  "word_intact-word_exchange",
+                  "word_top-word_bottom")
+pairOrder_E2 <- c("Chinese_intact-English_intact",
+                  "Chinese_intact-Chinese_exchange",
+                  "Chinese_top-Chinese_bottom",
+                  "English_intact-English_exchange",
+                  "English_top-English_bottom")
 
 ```
 
@@ -56,7 +63,7 @@ df_clean_univar <- {
   df_univar %>% 
     separate(Conditions, c("FaceWord", "Layout"), "_") %>% # separate the conditions into two IVs
     mutate(# FaceWord = as.factor(FaceWord),
-           Layout = as.factor(Layout)) %>% # convert the two IVs to factors
+           Layout = factor(Layout, levels = layoutOrder)) %>% # convert the two IVs to factors
     select(ExpCode, ROI, SubjCode, FaceWord, Layout, Resp) 
 }
 
@@ -96,7 +103,8 @@ df_mvpa_acc <- {
   df_clean_mvpa %>% 
     select(-c(Predicted, Targets)) %>% # remove these two columns
     group_by(ExpCode, ROI, SubjCode, ClassifyPair) %>% # divide the data into groups by these columns 
-    summarize(Accuracy = mean(ACC), Count = n())
+    summarize(Accuracy = mean(ACC), Count = n()) %>% 
+    ungroup()
 }
 ```
 
@@ -108,10 +116,20 @@ df_univar %>%
 ```
 
 # Experiment 1: faces and words
-## Univariate analysis
+## Univariate analyses
 ```{r only keep the univariate data for E1}
-df_univar_E1 <- splitexp(df_clean_univar, 1)
-df_univar_agg_E1 <- splitexp(df_univar_agg, 1)
+df_univar_E1 <- {
+  df_clean_univar %>% 
+    filter(ExpCode == 1) %>% 
+    mutate(FaceWord = factor(FaceWord, levels = facewordOrder))
+}
+  
+df_univar_agg_E1 <- {
+  df_univar_agg %>% 
+    filter(ExpCode == 1) %>% 
+    mutate(FaceWord = factor(FaceWord, levels = facewordOrder))
+}
+
 
 ```
 
@@ -129,10 +147,15 @@ emm_uni_E1 <- emmeans(anova_uni_E1, ~ FaceWord * Layout)
 emm_uni_E1
 ```
 
+
 ```{r}
-# contrast(emm_uni_E1, "pairwise")
-# 
-# contrast(emm_uni_E1, interaction = "pairwise")
+# contrast(emmeans(anova_uni_E1, ~ FaceWord), "pairwise")
+#  
+# contrast(emmeans(anova_uni_E1, ~ Layout), "pairwise", adjust = "none")
+```
+
+```{r}
+contrast(emm_uni_E1, interaction = "pairwise", adjust = "none")
 ```
 
 ### Linear mixed model
