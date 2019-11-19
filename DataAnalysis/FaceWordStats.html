@@ -2843,42 +2843,53 @@ library(lmerTest)</code></pre>
 <h1><span class="header-section-number">2</span> Load and clean data</h1>
 <pre class="r"><code># assign filenames
 fn_univar &lt;- &quot;FaceWord_Uni.csv&quot;
-fn_cosmo &lt;- &quot;FaceWord_Cosmo.csv&quot;</code></pre>
-<pre class="r"><code>splitexp &lt;- function(df, expCode) {
-  df%&gt;% 
-    filter(ExpCode == expCode) %&gt;% 
-    mutate(FaceWord = as.factor(FaceWord))
-}</code></pre>
+fn_cosmo &lt;- &quot;FaceWord_Cosmo.csv&quot;
+
+# set the order of levels in factors
+facewordOrder &lt;- c(&quot;face&quot;, &quot;word&quot;)
+wordsOrder &lt;- c(&quot;Chinese&quot;, &quot;English&quot;)
+layoutOrder &lt;- c(&quot;intact&quot;, &quot;exchange&quot;, &quot;top&quot;, &quot;bottom&quot;)
+
+pairOrder_E1 &lt;- c(&quot;face_intact-word_intact&quot;,
+                  &quot;face_intact-face_exchange&quot;,
+                  &quot;face_top-face_bottom&quot;,
+                  &quot;word_intact-word_exchange&quot;,
+                  &quot;word_top-word_bottom&quot;)
+pairOrder_E2 &lt;- c(&quot;Chinese_intact-English_intact&quot;,
+                  &quot;Chinese_intact-Chinese_exchange&quot;,
+                  &quot;Chinese_top-Chinese_bottom&quot;,
+                  &quot;English_intact-English_exchange&quot;,
+                  &quot;English_top-English_bottom&quot;)</code></pre>
 <div id="data-for-univarite-analysis" class="section level2">
 <h2><span class="header-section-number">2.1</span> Data for univarite analysis</h2>
 <pre class="r"><code># load data file for univerate analysis
 df_univar &lt;- read.csv(fn_univar)
 
 str(df_univar)</code></pre>
-<pre><code>## 'data.frame':    2880 obs. of  8 variables:
+<pre><code>## 'data.frame':    2960 obs. of  8 variables:
 ##  $ ExpCode   : int  1 1 1 1 1 1 1 1 1 1 ...
 ##  $ ROI       : Factor w/ 1 level &quot;roi.rh.f20.f-vs-o.label&quot;: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ nVertices : int  207 207 207 207 207 207 207 207 207 207 ...
 ##  $ LabelSize : num  146 146 146 146 146 ...
-##  $ SubjCode  : Factor w/ 36 levels &quot;faceword01_self&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ SubjCode  : Factor w/ 37 levels &quot;faceword01_self&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ Resp      : num  -0.214 -0.164 -0.252 -0.849 0.289 ...
-##  $ Conditions: Factor w/ 16 levels &quot;Chinese_bottom&quot;,..: 13 12 14 11 10 15 9 16 11 9 ...
-##  $ Target    : int  8 3 6 1 2 5 4 7 1 4 ...</code></pre>
+##  $ Conditions: Factor w/ 16 levels &quot;Chinese_bottom&quot;,..: 11 10 12 9 15 14 16 13 11 10 ...
+##  $ Target    : int  1 2 3 4 5 6 7 8 1 2 ...</code></pre>
 <pre class="r"><code>df_clean_univar &lt;- {
   df_univar %&gt;% 
     separate(Conditions, c(&quot;FaceWord&quot;, &quot;Layout&quot;), &quot;_&quot;) %&gt;% # separate the conditions into two IVs
     mutate(# FaceWord = as.factor(FaceWord),
-           Layout = as.factor(Layout)) %&gt;% # convert the two IVs to factors
+           Layout = factor(Layout, levels = layoutOrder)) %&gt;% # convert the two IVs to factors
     select(ExpCode, ROI, SubjCode, FaceWord, Layout, Resp) 
 }
 
 str(df_clean_univar)</code></pre>
-<pre><code>## 'data.frame':    2880 obs. of  6 variables:
+<pre><code>## 'data.frame':    2960 obs. of  6 variables:
 ##  $ ExpCode : int  1 1 1 1 1 1 1 1 1 1 ...
 ##  $ ROI     : Factor w/ 1 level &quot;roi.rh.f20.f-vs-o.label&quot;: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ SubjCode: Factor w/ 36 levels &quot;faceword01_self&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ FaceWord: chr  &quot;word&quot; &quot;face&quot; &quot;word&quot; &quot;face&quot; ...
-##  $ Layout  : Factor w/ 4 levels &quot;bottom&quot;,&quot;exchange&quot;,..: 1 4 2 3 2 3 1 4 3 1 ...
+##  $ SubjCode: Factor w/ 37 levels &quot;faceword01_self&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ FaceWord: chr  &quot;face&quot; &quot;face&quot; &quot;face&quot; &quot;face&quot; ...
+##  $ Layout  : Factor w/ 4 levels &quot;intact&quot;,&quot;exchange&quot;,..: 1 2 3 4 1 2 3 4 1 2 ...
 ##  $ Resp    : num  -0.214 -0.164 -0.252 -0.849 0.289 ...</code></pre>
 <pre class="r"><code>df_univar_agg &lt;- {
   df_clean_univar %&gt;% 
@@ -2888,13 +2899,13 @@ str(df_clean_univar)</code></pre>
 }
 
 str(df_univar_agg)</code></pre>
-<pre><code>## Classes 'tbl_df', 'tbl' and 'data.frame':    288 obs. of  7 variables:
+<pre><code>## Classes 'tbl_df', 'tbl' and 'data.frame':    296 obs. of  7 variables:
 ##  $ ExpCode : int  1 1 1 1 1 1 1 1 1 1 ...
 ##  $ ROI     : Factor w/ 1 level &quot;roi.rh.f20.f-vs-o.label&quot;: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ SubjCode: Factor w/ 36 levels &quot;faceword01_self&quot;,..: 1 1 1 1 1 1 1 1 2 2 ...
+##  $ SubjCode: Factor w/ 37 levels &quot;faceword01_self&quot;,..: 1 1 1 1 1 1 1 1 2 2 ...
 ##  $ FaceWord: chr  &quot;face&quot; &quot;face&quot; &quot;face&quot; &quot;face&quot; ...
-##  $ Layout  : Factor w/ 4 levels &quot;bottom&quot;,&quot;exchange&quot;,..: 1 2 3 4 1 2 3 4 1 2 ...
-##  $ meanResp: num  0.0636 0.0883 0.0044 0.1605 -0.1134 ...
+##  $ Layout  : Factor w/ 4 levels &quot;intact&quot;,&quot;exchange&quot;,..: 1 2 3 4 1 2 3 4 1 2 ...
+##  $ meanResp: num  0.2784 0.0342 0.1748 0.0747 0.1356 ...
 ##  $ Count   : int  10 10 10 10 10 10 10 10 10 10 ...</code></pre>
 </div>
 <div id="data-from-cosmomvpa" class="section level2">
@@ -2902,37 +2913,38 @@ str(df_univar_agg)</code></pre>
 <pre class="r"><code>df_mvpa &lt;- read.csv(fn_cosmo)
 
 str(df_mvpa)</code></pre>
-<pre><code>## 'data.frame':    3600 obs. of  11 variables:
+<pre><code>## 'data.frame':    3700 obs. of  11 variables:
 ##  $ ExpCode     : int  1 1 1 1 1 1 1 1 1 1 ...
 ##  $ ROI         : Factor w/ 1 level &quot;roi.rh.f20.f-vs-o.label&quot;: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ nVertices   : int  207 207 207 207 207 207 207 207 207 207 ...
 ##  $ LabelSize   : num  146 146 146 146 146 ...
-##  $ SubjCode    : Factor w/ 36 levels &quot;faceword01_self&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ SubjCode    : Factor w/ 37 levels &quot;faceword01_self&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ ClassifyPair: Factor w/ 10 levels &quot;Chinese_intact-Chinese_exchange&quot;,..: 7 7 7 7 7 7 7 7 7 7 ...
 ##  $ Classifier  : Factor w/ 1 level &quot;cosmo_classify_libsvm&quot;: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ Run         : int  1 1 2 2 3 3 4 4 5 5 ...
-##  $ Predicted   : int  1 5 1 1 5 5 1 1 5 5 ...
-##  $ Targets     : int  1 5 1 5 1 5 5 1 1 5 ...
-##  $ ACC         : int  1 1 1 0 0 1 0 1 0 1 ...</code></pre>
+##  $ Predicted   : int  1 5 1 1 1 1 5 5 1 5 ...
+##  $ Targets     : int  1 5 1 5 1 5 1 5 1 5 ...
+##  $ ACC         : int  1 1 1 0 1 0 0 1 1 1 ...</code></pre>
 <pre class="r"><code>df_clean_mvpa &lt;- {
   df_mvpa %&gt;% 
     select(ExpCode, ROI, SubjCode, ClassifyPair, Predicted, Targets, ACC)
 }
 
 str(df_clean_mvpa)</code></pre>
-<pre><code>## 'data.frame':    3600 obs. of  7 variables:
+<pre><code>## 'data.frame':    3700 obs. of  7 variables:
 ##  $ ExpCode     : int  1 1 1 1 1 1 1 1 1 1 ...
 ##  $ ROI         : Factor w/ 1 level &quot;roi.rh.f20.f-vs-o.label&quot;: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ SubjCode    : Factor w/ 36 levels &quot;faceword01_self&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ SubjCode    : Factor w/ 37 levels &quot;faceword01_self&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ ClassifyPair: Factor w/ 10 levels &quot;Chinese_intact-Chinese_exchange&quot;,..: 7 7 7 7 7 7 7 7 7 7 ...
-##  $ Predicted   : int  1 5 1 1 5 5 1 1 5 5 ...
-##  $ Targets     : int  1 5 1 5 1 5 5 1 1 5 ...
-##  $ ACC         : int  1 1 1 0 0 1 0 1 0 1 ...</code></pre>
+##  $ Predicted   : int  1 5 1 1 1 1 5 5 1 5 ...
+##  $ Targets     : int  1 5 1 5 1 5 1 5 1 5 ...
+##  $ ACC         : int  1 1 1 0 1 0 0 1 1 1 ...</code></pre>
 <pre class="r"><code>df_mvpa_acc &lt;- {
   df_clean_mvpa %&gt;% 
     select(-c(Predicted, Targets)) %&gt;% # remove these two columns
     group_by(ExpCode, ROI, SubjCode, ClassifyPair) %&gt;% # divide the data into groups by these columns 
-    summarize(Accuracy = mean(ACC), Count = n())
+    summarize(Accuracy = mean(ACC), Count = n()) %&gt;% 
+    ungroup()
 }</code></pre>
 </div>
 </div>
@@ -2943,139 +2955,379 @@ str(df_clean_mvpa)</code></pre>
   distinct()</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["ExpCode"],"name":[1],"type":["int"],"align":["right"]},{"label":["ROI"],"name":[2],"type":["fctr"],"align":["left"]},{"label":["SubjCode"],"name":[3],"type":["fctr"],"align":["left"]},{"label":["nVertices"],"name":[4],"type":["int"],"align":["right"]},{"label":["LabelSize"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword01_self","4":"207","5":"146.150"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword03_self","4":"464","5":"320.410"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword04_self","4":"317","5":"234.950"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword07_self","4":"184","5":"134.870"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword08_self","4":"488","5":"357.680"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword09_self","4":"448","5":"295.580"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword10_self","4":"66","5":"42.360"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword11_self","4":"187","5":"133.640"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword12_self","4":"685","5":"477.480"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword13_self","4":"20","5":"12.440"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword14_self","4":"132","5":"97.180"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword15_self","4":"490","5":"346.230"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword16_self","4":"614","5":"406.880"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword17_self","4":"54","5":"43.910"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword18_self","4":"245","5":"162.420"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword19_self","4":"572","5":"2.986"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword21_self","4":"834","5":"4.294"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN01_self","4":"698","5":"507.510"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN02_self","4":"358","5":"248.380"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN03_self","4":"246","5":"172.020"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN05_self","4":"363","5":"256.560"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN06_self","4":"611","5":"404.420"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN07_self","4":"871","5":"607.850"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN08_self","4":"171","5":"111.030"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN09_self","4":"419","5":"275.850"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN10_self","4":"697","5":"4.338"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN11_self","4":"38","5":"23.630"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN12_self","4":"354","5":"254.310"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN13_self","4":"251","5":"173.470"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN14_self","4":"755","5":"3.144"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN15_self","4":"76","5":"1.218"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN16_self","4":"210","5":"147.640"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN17_self","4":"588","5":"409.050"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN18_self","4":"511","5":"353.000"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN19_self","4":"246","5":"163.350"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN20_self","4":"508","5":"2.593"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["ExpCode"],"name":[1],"type":["int"],"align":["right"]},{"label":["ROI"],"name":[2],"type":["fctr"],"align":["left"]},{"label":["SubjCode"],"name":[3],"type":["fctr"],"align":["left"]},{"label":["nVertices"],"name":[4],"type":["int"],"align":["right"]},{"label":["LabelSize"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword01_self","4":"207","5":"146.150"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword03_self","4":"464","5":"320.410"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword04_self","4":"317","5":"234.950"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword06_self","4":"28","5":"20.840"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword07_self","4":"184","5":"134.870"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword08_self","4":"488","5":"357.680"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword09_self","4":"448","5":"295.580"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword10_self","4":"66","5":"42.360"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword11_self","4":"187","5":"133.640"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword12_self","4":"685","5":"477.480"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword13_self","4":"20","5":"12.440"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword14_self","4":"132","5":"97.180"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword15_self","4":"490","5":"346.230"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword16_self","4":"614","5":"406.880"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword17_self","4":"54","5":"43.910"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword18_self","4":"245","5":"162.420"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword19_self","4":"572","5":"2.986"},{"1":"1","2":"roi.rh.f20.f-vs-o.label","3":"faceword21_self","4":"834","5":"4.294"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN01_self","4":"698","5":"507.510"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN02_self","4":"358","5":"248.380"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN03_self","4":"246","5":"172.020"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN05_self","4":"363","5":"256.560"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN06_self","4":"611","5":"404.420"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN07_self","4":"871","5":"607.850"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN08_self","4":"171","5":"111.030"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN09_self","4":"419","5":"275.850"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN10_self","4":"697","5":"4.338"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN11_self","4":"38","5":"23.630"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN12_self","4":"354","5":"254.310"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN13_self","4":"251","5":"173.470"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN14_self","4":"755","5":"3.144"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN15_self","4":"76","5":"1.218"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN16_self","4":"210","5":"147.640"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN17_self","4":"588","5":"409.050"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN18_self","4":"511","5":"353.000"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN19_self","4":"246","5":"163.350"},{"1":"2","2":"roi.rh.f20.f-vs-o.label","3":"facewordN20_self","4":"508","5":"2.593"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
 <div id="experiment-1-faces-and-words" class="section level1">
 <h1><span class="header-section-number">4</span> Experiment 1: faces and words</h1>
-<div id="univariate-analysis" class="section level2">
-<h2><span class="header-section-number">4.1</span> Univariate analysis</h2>
-<pre class="r"><code>df_univar_E1 &lt;- splitexp(df_clean_univar, 1)
-df_univar_agg_E1 &lt;- splitexp(df_univar_agg, 1)</code></pre>
+<div id="univariate-analyses" class="section level2">
+<h2><span class="header-section-number">4.1</span> Univariate analyses</h2>
+<pre class="r"><code>df_univar_E1 &lt;- {
+  df_clean_univar %&gt;% 
+    filter(ExpCode == 1) %&gt;% 
+    mutate(FaceWord = factor(FaceWord, levels = facewordOrder))
+}
+  
+df_univar_agg_E1 &lt;- {
+  df_univar_agg %&gt;% 
+    filter(ExpCode == 1) %&gt;% 
+    mutate(FaceWord = factor(FaceWord, levels = facewordOrder))
+}</code></pre>
 <div id="rm-anova" class="section level3">
 <h3><span class="header-section-number">4.1.1</span> rm-ANOVA</h3>
 <pre class="r"><code>anova_uni_E1 &lt;- aov_4(meanResp ~ FaceWord * Layout + (1 + FaceWord * Layout | SubjCode), data = df_univar_agg_E1)
 
 summary(anova_uni_E1)</code></pre>
-<pre><code>## Warning in summary.Anova.mlm(object$Anova, multivariate = FALSE): HF eps &gt;
-## 1 treated as 1</code></pre>
 <pre><code>## 
 ## Univariate Type III Repeated-Measures ANOVA Assuming Sphericity
 ## 
-##                  Sum Sq num Df Error SS den Df F value   Pr(&gt;F)    
-## (Intercept)     157.533      1   36.509     16 69.0382 3.38e-07 ***
-## FaceWord          0.040      1    0.303     16  2.1076   0.1659    
-## Layout            0.035      3    1.125     48  0.5031   0.6820    
-## FaceWord:Layout   0.075      3    1.307     48  0.9212   0.4377    
+##                  Sum Sq num Df Error SS den Df F value    Pr(&gt;F)    
+## (Intercept)     160.903      1   37.411     17 73.1161 1.457e-07 ***
+## FaceWord          2.620      1    2.775     17 16.0504 0.0009146 ***
+## Layout            0.585      3    1.309     51  7.6060 0.0002687 ***
+## FaceWord:Layout   0.215      3    1.803     51  2.0258 0.1219209    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## 
 ## Mauchly Tests for Sphericity
 ## 
-##                 Test statistic p-value
-## Layout                 0.51177 0.07991
-## FaceWord:Layout        0.79017 0.62911
+##                 Test statistic  p-value
+## Layout                 0.59519 0.148529
+## FaceWord:Layout        0.42619 0.020095
 ## 
 ## 
 ## Greenhouse-Geisser and Huynh-Feldt Corrections
 ##  for Departure from Sphericity
 ## 
-##                  GG eps Pr(&gt;F[GG])
-## Layout          0.70121     0.6184
-## FaceWord:Layout 0.88619     0.4292
+##                  GG eps Pr(&gt;F[GG])    
+## Layout          0.80235  0.0008431 ***
+## FaceWord:Layout 0.63192  0.1503545    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-##                    HF eps Pr(&gt;F[HF])
-## Layout          0.8098379  0.6441255
-## FaceWord:Layout 1.0792407  0.4377369</code></pre>
+##                    HF eps   Pr(&gt;F[HF])
+## Layout          0.9439952 0.0003711252
+## FaceWord:Layout 0.7089340 0.1440746360</code></pre>
 <pre class="r"><code>emm_uni_E1 &lt;- emmeans(anova_uni_E1, ~ FaceWord * Layout)
 
 emm_uni_E1</code></pre>
 <pre><code>##  FaceWord Layout   emmean    SE   df lower.CL upper.CL
-##  face     bottom     1.04 0.134 18.5    0.761     1.32
-##  word     bottom     1.08 0.134 18.5    0.798     1.36
-##  face     exchange   1.09 0.134 18.5    0.808     1.37
-##  word     exchange   1.04 0.134 18.5    0.754     1.32
-##  face     intact     1.13 0.134 18.5    0.844     1.41
-##  word     intact     1.03 0.134 18.5    0.752     1.32
-##  face     top        1.12 0.134 18.5    0.834     1.40
-##  word     top        1.09 0.134 18.5    0.805     1.37
+##  face     intact    1.361 0.133 22.6    1.086     1.64
+##  word     intact    0.966 0.133 22.6    0.690     1.24
+##  face     exchange  1.148 0.133 22.6    0.873     1.42
+##  word     exchange  0.905 0.133 22.6    0.630     1.18
+##  face     top       1.087 0.133 22.6    0.812     1.36
+##  word     top       0.903 0.133 22.6    0.627     1.18
+##  face     bottom    1.171 0.133 22.6    0.896     1.45
+##  word     bottom    0.915 0.133 22.6    0.640     1.19
 ## 
 ## Warning: EMMs are biased unless design is perfectly balanced 
 ## Confidence level used: 0.95</code></pre>
-<pre class="r"><code># contrast(emm_uni_E1, &quot;pairwise&quot;)
-# 
-# contrast(emm_uni_E1, interaction = &quot;pairwise&quot;)</code></pre>
+<pre class="r"><code># contrast(emmeans(anova_uni_E1, ~ FaceWord), &quot;pairwise&quot;)
+#  
+# contrast(emmeans(anova_uni_E1, ~ Layout), &quot;pairwise&quot;, adjust = &quot;none&quot;)</code></pre>
+<pre class="r"><code>contrast(emm_uni_E1, interaction = &quot;pairwise&quot;, adjust = &quot;none&quot;)</code></pre>
+<pre><code>##  FaceWord_pairwise Layout_pairwise   estimate     SE df t.ratio p.value
+##  face - word       intact - exchange   0.1523 0.0886 51  1.718  0.0919 
+##  face - word       intact - top        0.2105 0.0886 51  2.375  0.0213 
+##  face - word       intact - bottom     0.1387 0.0886 51  1.565  0.1237 
+##  face - word       exchange - top      0.0583 0.0886 51  0.657  0.5138 
+##  face - word       exchange - bottom  -0.0135 0.0886 51 -0.153  0.8794 
+##  face - word       top - bottom       -0.0718 0.0886 51 -0.810  0.4217</code></pre>
 </div>
 <div id="linear-mixed-model" class="section level3">
 <h3><span class="header-section-number">4.1.2</span> Linear mixed model</h3>
 <pre class="r"><code># lmm.uni.E1 &lt;- lmer(Resp ~ FaceWord * Layout + (1 + FaceWord * Layout | SubjCode), data = df_univar_E1)</code></pre>
 </div>
 </div>
+<div id="multivariate-analyses" class="section level2">
+<h2><span class="header-section-number">4.2</span> Multivariate analyses</h2>
+<pre class="r"><code>df_mvpa_E1 &lt;- {
+  df_clean_mvpa %&gt;% 
+    filter(ExpCode == 1) %&gt;% 
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E1))
+}
+
+df_mvpa_acc_E1 &lt;- {
+  df_mvpa_acc %&gt;% 
+    filter(ExpCode == 1) %&gt;% 
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E1))
+}</code></pre>
+<div id="one-sample-t-test" class="section level3">
+<h3><span class="header-section-number">4.2.1</span> One-sample t-test</h3>
+<pre class="r"><code>df_mvpa_acc_E1 %&gt;% 
+  spread(ClassifyPair, Accuracy) %&gt;% # change to table (each row is one subject)
+  select(-c(ExpCode, ROI, SubjCode, Count)) %&gt;% # remove these columns
+  sapply(function(x) t.test(x, mu = 0.5, alternative = &quot;greater&quot;)) # apply one-sample t-test to each column separately </code></pre>
+<pre><code>##             face_intact-word_intact face_intact-face_exchange
+## statistic   7.652413                1.624171                 
+## parameter   17                      17                       
+## p.value     3.323434e-07            0.06136725               
+## conf.int    Numeric,2               Numeric,2                
+## estimate    0.7277778               0.55                     
+## null.value  0.5                     0.5                      
+## stderr      0.02976548              0.03078494               
+## alternative &quot;greater&quot;               &quot;greater&quot;                
+## method      &quot;One Sample t-test&quot;     &quot;One Sample t-test&quot;      
+## data.name   &quot;x&quot;                     &quot;x&quot;                      
+##             face_top-face_bottom word_intact-word_exchange
+## statistic   2.415069             -0.2203893               
+## parameter   17                   17                       
+## p.value     0.01364066           0.5859035                
+## conf.int    Numeric,2            Numeric,2                
+## estimate    0.5861111            0.4944444                
+## null.value  0.5                  0.5                      
+## stderr      0.03565575           0.02520792               
+## alternative &quot;greater&quot;            &quot;greater&quot;                
+## method      &quot;One Sample t-test&quot;  &quot;One Sample t-test&quot;      
+## data.name   &quot;x&quot;                  &quot;x&quot;                      
+##             word_top-word_bottom
+## statistic   -1.38675            
+## parameter   17                  
+## p.value     0.9082826           
+## conf.int    Numeric,2           
+## estimate    0.4583333           
+## null.value  0.5                 
+## stderr      0.03004626          
+## alternative &quot;greater&quot;           
+## method      &quot;One Sample t-test&quot; 
+## data.name   &quot;x&quot;</code></pre>
+</div>
+<div id="logistic-model" class="section level3">
+<h3><span class="header-section-number">4.2.2</span> Logistic model</h3>
+<pre class="r"><code>glm_mvpa_E1 &lt;- glm(ACC ~ ClassifyPair, family = binomial, data = df_mvpa_E1)
+
+summary(glm_mvpa_E1)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = ACC ~ ClassifyPair, family = binomial, data = df_mvpa_E1)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.6132  -1.1680   0.7972   1.0935   1.2491  
+## 
+## Coefficients:
+##                                       Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept)                             0.9834     0.1184   8.305  &lt; 2e-16
+## ClassifyPairface_intact-face_exchange  -0.7827     0.1589  -4.926 8.38e-07
+## ClassifyPairface_top-face_bottom       -0.6355     0.1596  -3.982 6.84e-05
+## ClassifyPairword_intact-word_exchange  -1.0056     0.1585  -6.343 2.25e-10
+## ClassifyPairword_top-word_bottom       -1.1504     0.1588  -7.246 4.30e-13
+##                                          
+## (Intercept)                           ***
+## ClassifyPairface_intact-face_exchange ***
+## ClassifyPairface_top-face_bottom      ***
+## ClassifyPairword_intact-word_exchange ***
+## ClassifyPairword_top-word_bottom      ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 2466.4  on 1799  degrees of freedom
+## Residual deviance: 2400.9  on 1795  degrees of freedom
+## AIC: 2410.9
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code>emm_mvpa_E1 &lt;- emmeans(glm_mvpa_E1, ~ ClassifyPair)
+
+emm_mvpa_E1</code></pre>
+<pre><code>##  ClassifyPair               emmean    SE  df asymp.LCL asymp.UCL
+##  face_intact-word_intact    0.9834 0.118 Inf   0.75130    1.2155
+##  face_intact-face_exchange  0.2007 0.106 Inf  -0.00697    0.4083
+##  face_top-face_bottom       0.3479 0.107 Inf   0.13818    0.5576
+##  word_intact-word_exchange -0.0222 0.105 Inf  -0.22883    0.1844
+##  word_top-word_bottom      -0.1671 0.106 Inf  -0.37437    0.0403
+## 
+## Results are given on the logit (not the response) scale. 
+## Confidence level used: 0.95</code></pre>
+<pre class="r"><code>test(emm_mvpa_E1, mu = 0, side = &quot;&gt;&quot;)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ClassifyPair"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["emmean"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["z.ratio"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"face_intact-word_intact","2":"0.98337703","3":"0.1184097","4":"Inf","5":"8.3048697","6":"4.996451e-17","_rn_":"1"},{"1":"face_intact-face_exchange","2":"0.20067070","3":"0.1059403","4":"Inf","5":"1.8941868","6":"2.910011e-02","_rn_":"2"},{"1":"face_top-face_bottom","2":"0.34791183","3":"0.1070082","4":"Inf","5":"3.2512645","6":"5.744645e-04","_rn_":"3"},{"1":"word_intact-word_exchange","2":"-0.02222314","3":"0.1054158","4":"Inf","5":"-0.2108142","6":"5.834839e-01","_rn_":"4"},{"1":"word_top-word_bottom","2":"-0.16705408","3":"0.1057772","4":"Inf","5":"-1.5793018","6":"9.428666e-01","_rn_":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
 </div>
 <div id="experiment-2-chinese-and-english" class="section level1">
 <h1><span class="header-section-number">5</span> Experiment 2: Chinese and English</h1>
-<div id="univariate-analysis-1" class="section level2">
+<div id="univariate-analysis" class="section level2">
 <h2><span class="header-section-number">5.1</span> Univariate analysis</h2>
-<pre class="r"><code>df_univar_E2 &lt;- splitexp(df_clean_univar, 2)
-df_univar_agg_E2 &lt;- splitexp(df_univar_agg, 2)</code></pre>
+<pre class="r"><code>df_univar_E2&lt;- {
+  df_clean_univar %&gt;% 
+    filter(ExpCode == 2) %&gt;% 
+    mutate(FaceWord = factor(FaceWord, levels = wordsOrder))
+}
+  
+df_univar_agg_E2&lt;- {
+  df_univar_agg %&gt;% 
+    filter(ExpCode == 2) %&gt;% 
+    mutate(FaceWord = factor(FaceWord, levels = wordsOrder))
+}</code></pre>
 <div id="rm-anova-1" class="section level3">
 <h3><span class="header-section-number">5.1.1</span> rm-ANOVA</h3>
 <pre class="r"><code>anova_uni_E2 &lt;- aov_4(meanResp ~ FaceWord * Layout + (1 + FaceWord * Layout | SubjCode), data = df_univar_agg_E2)
 
 summary(anova_uni_E2)</code></pre>
-<pre><code>## Warning in summary.Anova.mlm(object$Anova, multivariate = FALSE): HF eps &gt;
-## 1 treated as 1</code></pre>
 <pre><code>## 
 ## Univariate Type III Repeated-Measures ANOVA Assuming Sphericity
 ## 
 ##                 Sum Sq num Df Error SS den Df F value    Pr(&gt;F)    
 ## (Intercept)     6.6104      1   6.2067     18 19.1710 0.0003623 ***
-## FaceWord        0.0114      1   0.2344     18  0.8778 0.3612195    
-## Layout          0.1416      3   0.4899     54  5.2029 0.0031397 ** 
-## FaceWord:Layout 0.0126      3   0.8807     54  0.2577 0.8554935    
+## FaceWord        0.0191      1   0.9674     18  0.3556 0.5584042    
+## Layout          0.1067      3   0.9840     54  1.9519 0.1322059    
+## FaceWord:Layout 0.0460      3   0.7640     54  1.0847 0.3634322    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## 
 ## Mauchly Tests for Sphericity
 ## 
-##                 Test statistic p-value
-## Layout                  0.9370 0.95522
-## FaceWord:Layout         0.6534 0.21288
+##                 Test statistic  p-value
+## Layout                 0.52323 0.055254
+## FaceWord:Layout        0.53896 0.066725
 ## 
 ## 
 ## Greenhouse-Geisser and Huynh-Feldt Corrections
 ##  for Departure from Sphericity
 ## 
-##                  GG eps Pr(&gt;F[GG])   
-## Layout          0.96245   0.003587 **
-## FaceWord:Layout 0.78116   0.807425   
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+##                  GG eps Pr(&gt;F[GG])
+## Layout          0.73699     0.1514
+## FaceWord:Layout 0.79831     0.3560
 ## 
-##                    HF eps  Pr(&gt;F[HF])
-## Layout          1.1659029 0.003139664
-## FaceWord:Layout 0.9054017 0.836768675</code></pre>
+##                    HF eps Pr(&gt;F[HF])
+## Layout          0.8446513  0.1432930
+## FaceWord:Layout 0.9292588  0.3611826</code></pre>
 <pre class="r"><code>emm_uni_E2 &lt;- emmeans(anova_uni_E2, ~ FaceWord * Layout)
 
 emm_uni_E2</code></pre>
 <pre><code>##  FaceWord Layout   emmean     SE   df lower.CL upper.CL
-##  Chinese  bottom    0.168 0.0534 28.2   0.0585    0.277
-##  English  bottom    0.168 0.0534 28.2   0.0582    0.277
-##  Chinese  exchange  0.216 0.0534 28.2   0.1064    0.325
-##  English  exchange  0.168 0.0534 28.2   0.0584    0.277
-##  Chinese  intact    0.235 0.0534 28.2   0.1257    0.344
-##  English  intact    0.223 0.0534 28.2   0.1140    0.333
-##  Chinese  top       0.250 0.0534 28.2   0.1406    0.359
-##  English  top       0.241 0.0534 28.2   0.1313    0.350
+##  Chinese  intact    0.226 0.0571 35.8   0.1097    0.341
+##  English  intact    0.228 0.0571 35.8   0.1123    0.344
+##  Chinese  exchange  0.188 0.0571 35.8   0.0722    0.304
+##  English  exchange  0.147 0.0571 35.8   0.0313    0.263
+##  Chinese  top       0.271 0.0571 35.8   0.1553    0.387
+##  English  top       0.202 0.0571 35.8   0.0857    0.317
+##  Chinese  bottom    0.194 0.0571 35.8   0.0785    0.310
+##  English  bottom    0.213 0.0571 35.8   0.0967    0.328
 ## 
 ## Warning: EMMs are biased unless design is perfectly balanced 
 ## Confidence level used: 0.95</code></pre>
 <pre class="r"><code># contrast(emm_uni_E2, &quot;pairwise&quot;)
 # 
 # contrast(emm_uni_E2, interaction = &quot;pairwise&quot;)</code></pre>
+</div>
+</div>
+<div id="multivariate-analyses-1" class="section level2">
+<h2><span class="header-section-number">5.2</span> Multivariate analyses</h2>
+<pre class="r"><code>df_mvpa_E2 &lt;- {
+  df_clean_mvpa %&gt;% 
+    filter(ExpCode == 2) %&gt;% 
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E2))
+}
+
+df_mvpa_acc_E2 &lt;- {
+  df_mvpa_acc %&gt;% 
+    filter(ExpCode == 2) %&gt;% 
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E2))
+}</code></pre>
+<div id="one-sample-t-test-1" class="section level3">
+<h3><span class="header-section-number">5.2.1</span> One-sample t-test</h3>
+<pre class="r"><code>df_mvpa_acc_E2 %&gt;% 
+  spread(ClassifyPair, Accuracy) %&gt;% 
+  select(-c(ExpCode, ROI, SubjCode, Count)) %&gt;% 
+  sapply(function(x) t.test(x, mu = 0.5, alternative = &quot;greater&quot;))</code></pre>
+<pre><code>##             Chinese_intact-English_intact Chinese_intact-Chinese_exchange
+## statistic   7.006318                      0.6732291                      
+## parameter   18                            18                             
+## p.value     7.674323e-07                  0.2546769                      
+## conf.int    Numeric,2                     Numeric,2                      
+## estimate    0.6131579                     0.5184211                      
+## null.value  0.5                           0.5                            
+## stderr      0.01615084                    0.02736224                     
+## alternative &quot;greater&quot;                     &quot;greater&quot;                      
+## method      &quot;One Sample t-test&quot;           &quot;One Sample t-test&quot;            
+## data.name   &quot;x&quot;                           &quot;x&quot;                            
+##             Chinese_top-Chinese_bottom English_intact-English_exchange
+## statistic   2.2723                     1.690087                       
+## parameter   18                         18                             
+## p.value     0.01778157                 0.05412773                     
+## conf.int    Numeric,2                  Numeric,2                      
+## estimate    0.5631579                  0.5578947                      
+## null.value  0.5                        0.5                            
+## stderr      0.0277947                  0.03425548                     
+## alternative &quot;greater&quot;                  &quot;greater&quot;                      
+## method      &quot;One Sample t-test&quot;        &quot;One Sample t-test&quot;            
+## data.name   &quot;x&quot;                        &quot;x&quot;                            
+##             English_top-English_bottom
+## statistic   1.523234                  
+## parameter   18                        
+## p.value     0.07253794                
+## conf.int    Numeric,2                 
+## estimate    0.5421053                 
+## null.value  0.5                       
+## stderr      0.02764202                
+## alternative &quot;greater&quot;                 
+## method      &quot;One Sample t-test&quot;       
+## data.name   &quot;x&quot;</code></pre>
+</div>
+<div id="logistic-model-1" class="section level3">
+<h3><span class="header-section-number">5.2.2</span> Logistic model</h3>
+<pre class="r"><code>glm_mvpa_E2 &lt;- glm(ACC ~ ClassifyPair, family = binomial, data = df_mvpa_E2)
+
+summary(glm_mvpa_E2)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = ACC ~ ClassifyPair, family = binomial, data = df_mvpa_E2)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.3782  -1.2777   0.9891   1.0804   1.1463  
+## 
+## Coefficients:
+##                                             Estimate Std. Error z value
+## (Intercept)                                   0.4606     0.1053   4.373
+## ClassifyPairChinese_intact-Chinese_exchange  -0.3869     0.1471  -2.630
+## ClassifyPairChinese_top-Chinese_bottom       -0.2066     0.1476  -1.400
+## ClassifyPairEnglish_intact-English_exchange  -0.2280     0.1475  -1.545
+## ClassifyPairEnglish_top-English_bottom       -0.2918     0.1473  -1.981
+##                                             Pr(&gt;|z|)    
+## (Intercept)                                 1.23e-05 ***
+## ClassifyPairChinese_intact-Chinese_exchange  0.00853 ** 
+## ClassifyPairChinese_top-Chinese_bottom       0.16161    
+## ClassifyPairEnglish_intact-English_exchange  0.12225    
+## ClassifyPairEnglish_top-English_bottom       0.04760 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 2607.5  on 1899  degrees of freedom
+## Residual deviance: 2599.9  on 1895  degrees of freedom
+## AIC: 2609.9
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code>emm_mvpa_E2 &lt;- emmeans(glm_mvpa_E2, ~ ClassifyPair)
+
+emm_mvpa_E2</code></pre>
+<pre><code>##  ClassifyPair                    emmean    SE  df asymp.LCL asymp.UCL
+##  Chinese_intact-English_intact   0.4606 0.105 Inf    0.2542     0.667
+##  Chinese_intact-Chinese_exchange 0.0737 0.103 Inf   -0.1275     0.275
+##  Chinese_top-Chinese_bottom      0.2540 0.103 Inf    0.0513     0.457
+##  English_intact-English_exchange 0.2326 0.103 Inf    0.0302     0.435
+##  English_top-English_bottom      0.1688 0.103 Inf   -0.0330     0.371
+## 
+## Results are given on the logit (not the response) scale. 
+## Confidence level used: 0.95</code></pre>
+<pre class="r"><code>test(emm_mvpa_E2, mu = 0, side = &quot;&gt;&quot;)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ClassifyPair"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["emmean"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["z.ratio"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"Chinese_intact-English_intact","2":"0.46060587","3":"0.1053307","4":"Inf","5":"4.3729479","6":"0.000006129","_rn_":"1"},{"1":"Chinese_intact-Chinese_exchange","2":"0.07371758","3":"0.1026675","4":"Inf","5":"0.7180223","6":"0.236371782","_rn_":"2"},{"1":"Chinese_top-Chinese_bottom","2":"0.25398823","3":"0.1034263","4":"Inf","5":"2.4557419","6":"0.007029705","_rn_":"3"},{"1":"English_intact-English_exchange","2":"0.23262230","3":"0.1032926","4":"Inf","5":"2.2520712","6":"0.012158888","_rn_":"4"},{"1":"English_top-English_bottom","2":"0.16882087","3":"0.1029636","4":"Inf","5":"1.6396176","6":"0.050542352","_rn_":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 </div>
