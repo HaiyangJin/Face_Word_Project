@@ -143,11 +143,68 @@ emm_uni_E1
 
 ```
 
+## Multivariate analyses
+```{r only keep the multivariate (mvpa) data for E1}
+df_mvpa_E1 <- {
+  df_clean_mvpa %>% 
+    filter(ExpCode == 1) %>% 
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E1))
+}
+
+df_mvpa_acc_E1 <- {
+  df_mvpa_acc %>% 
+    filter(ExpCode == 1) %>% 
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E1))
+}
+
+```
+
+### One-sample t-test
+```{r one-sample for results of mvpa E1}
+
+df_mvpa_acc_E1 %>% 
+  spread(ClassifyPair, Accuracy) %>% # change to table (each row is one subject)
+  select(-c(ExpCode, ROI, SubjCode, Count)) %>% # remove these columns
+  sapply(function(x) t.test(x, mu = 0.5, alternative = "greater")) # apply one-sample t-test to each column separately 
+
+```
+
+
+### Logistic model
+```{r logistic linear model for results of mvpa E1 }
+
+glm_mvpa_E1 <- glm(ACC ~ ClassifyPair, family = binomial, data = df_mvpa_E1)
+
+summary(glm_mvpa_E1)
+```
+
+```{r estimated marginal means for mvpa E1}
+emm_mvpa_E1 <- emmeans(glm_mvpa_E1, ~ ClassifyPair)
+
+emm_mvpa_E1
+```
+
+
+```{r one-sample t-test for logistic models E1}
+test(emm_mvpa_E1, mu = 0, side = ">")
+```
+
 # Experiment 2: Chinese and English
 ## Univariate analysis
 ```{r only keep the univariate data for E2}
-df_univar_E2 <- splitexp(df_clean_univar, 2)
-df_univar_agg_E2 <- splitexp(df_univar_agg, 2)
+
+df_univar_E2<- {
+  df_clean_univar %>% 
+    filter(ExpCode == 2) %>% 
+    mutate(FaceWord = factor(FaceWord, levels = wordsOrder))
+}
+  
+df_univar_agg_E2<- {
+  df_univar_agg %>% 
+    filter(ExpCode == 2) %>% 
+    mutate(FaceWord = factor(FaceWord, levels = wordsOrder))
+}
+
 ```
 
 ### rm-ANOVA 
@@ -170,6 +227,52 @@ emm_uni_E2
 # contrast(emm_uni_E2, interaction = "pairwise")
 ```
 
+
+## Multivariate analyses
+```{r only keep the multivariate (mvpa) data for E2}
+
+df_mvpa_E2 <- {
+  df_clean_mvpa %>% 
+    filter(ExpCode == 2) %>% 
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E2))
+}
+
+df_mvpa_acc_E2 <- {
+  df_mvpa_acc %>% 
+    filter(ExpCode == 2) %>% 
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E2))
+}
+```
+
+### One-sample t-test
+```{r one-sample for results of mvpa E2}
+
+df_mvpa_acc_E2 %>% 
+  spread(ClassifyPair, Accuracy) %>% 
+  select(-c(ExpCode, ROI, SubjCode, Count)) %>% 
+  sapply(function(x) t.test(x, mu = 0.5, alternative = "greater"))
+
+```
+
+
+### Logistic model
+```{r logistic linear model for results of mvpa E2 }
+
+glm_mvpa_E2 <- glm(ACC ~ ClassifyPair, family = binomial, data = df_mvpa_E2)
+
+summary(glm_mvpa_E2)
+```
+
+```{r estimated marginal means for mvpa E2}
+emm_mvpa_E2 <- emmeans(glm_mvpa_E2, ~ ClassifyPair)
+
+emm_mvpa_E2
+```
+
+
+```{r one-sample t-test for logistic models E2}
+test(emm_mvpa_E2, mu = 0, side = ">")
+```
 
 # Versions of packages used
 ```{r versions}
