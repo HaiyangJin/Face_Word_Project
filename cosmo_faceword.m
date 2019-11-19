@@ -2,6 +2,7 @@
 labelNames = {'roi.rh.f20.f-vs-o.label'};
 runClassifiers = 1; % 1:nclassifiers
 % 1-libsvm; 2-nn; 3-naive bayes; 4-lda; 5-svm(matlab)
+runLoc = 0; % run analysis for localizer
 
 %% Preparation
 % Set the paths for beta files and the labels
@@ -33,6 +34,7 @@ args.output = 'fold_predictions';
 % Pre-define the table for saving (accuracy) data
 uniTable = table;
 outputTable = table;
+if runLoc; uniLocTable = table; end
 
 %% Run the analysis 
 
@@ -78,12 +80,60 @@ for iLabel = 1:nLabel
         labelsize = fs_labelsize(thisSubj, thisLabelFile, locBetaFile);
                 
         % Obtain the run (folder) names
-        runList = importdata(fullfile(boldPath, 'run_Main.txt'))';
+        if runLoc
+            runFile = 'run_loc.txt';
+            parFile = 'loc.par';
+        else
+            runFile = 'run_Main.txt'; 
+            parFile = 'main.par';
+        end
+        
+        runList = importdata(fullfile(boldPath, runFile))';
         runNames = arrayfun(@(x) sprintf('%03d', x), runList, 'UniformOutput', false);
         nRun = numel(runList);
         
+        if runLoc
+            
+            analysisName = ['loc_self.', hemi];
+            thisAnalysisFolder = fullfile(boldPath, analysisName);
+            thisBoldFilename = fullfile(thisAnalysisFolder, 'beta.nii.gz'); % the functional data file
+            
+            % load paradigm file
+            thisRunFolder = fullfile(boldPath, runNames{1});
+            parFileDir = dir(fullfile(thisRunFolder, parFile));
+            parInfo = fs_readpar(fullfile(parFileDir.folder, parFileDir.name));
+
+            % load the nifti from FreeSurfer
+            dt_all = cosmo_fmri_fs_dataset(thisBoldFilename); % with the whole brain
+            dt_all.samples = dt_all.samples(1 : size(parInfo, 1), :);
+            
+            % apply the mask
+            roiMask = zeros(1, size(dt_all.samples, 2));
+            roiMask(vertexROI) = 1; 
+            this_dt = cosmo_slice(dt_all, logical(roiMask), 2); % apply the roi mask to the whole dataset
+            
+            % add attributes
+            this_dt.sa.targets = parInfo.Condition;
+            this_dt.sa.labels = parInfo.Label;
+            
+            nRowLocUni = size(this_dt.samples, 1);
+        
+            this_loc_table = table;
+            this_loc_table.ExpCode = repmat(expCode, nRowLocUni, 1);
+            this_loc_table.ROI = repmat({thisLabelName}, nRowLocUni, 1);
+            this_loc_table.nVertices = repmat(nVertex, nRowLocUni, 1);
+            this_loc_table.LabelSize = repmat(labelsize, nRowLocUni, 1);
+            this_loc_table.SubjCode = repmat({thisSubj}, nRowLocUni, 1);
+            
+            this_loc_table = [this_loc_table, fs_cosmo_univariate(this_dt)]; %#ok<AGROW>
+            
+            uniLocTable = [uniLocTable; this_loc_table]; %#ok<AGROW>
+            continue
+            
+        end
+        
         % Pre-define the cell array for saving ds
-        ds_cell = cell(1, nRun);
+        ds_cell = cell(1, nRun); 
         
         for iRun = 1:nRun
             
@@ -216,17 +266,25 @@ for iLabel = 1:nLabel
     
 end
 
-% save the output results
-fn_cosmo = fullfile('~', 'Desktop', 'FaceWord_CosmoMVPA');
-save(fn_cosmo, 'outputTable');
-outputTable(:, 'Confusion') = [];
-writetable(outputTable, [fn_cosmo, '.xlsx']);
-writetable(outputTable, [fn_cosmo, '.csv']);
 
-fn_uni = fullfile('~', 'Desktop', 'FaceWord_Univariate');
-save(fn_uni, 'uniTable');
-writetable(uniTable, [fn_uni, '.xlsx']);
-writetable(uniTable, [fn_uni, '.csv']);
+if runLoc
+    fn_locuni = fullfile('~', 'Desktop', 'FaceWord_Loc_Univariate');
+    save(fn_locuni, 'uniLocTable');
+    writetable(uniLocTable, [fn_locuni, '.xlsx']);
+    writetable(uniLocTable, [fn_locuni, '.csv']);
+else
+    % save the output results
+    fn_cosmo = fullfile('~', 'Desktop', 'FaceWord_CosmoMVPA');
+    save(fn_cosmo, 'outputTable');
+    outputTable(:, 'Confusion') = [];
+    writetable(outputTable, [fn_cosmo, '.xlsx']);
+    writetable(outputTable, [fn_cosmo, '.csv']);
+    
+    fn_uni = fullfile('~', 'Desktop', 'FaceWord_Univariate');
+    save(fn_uni, 'uniTable');
+    writetable(uniTable, [fn_uni, '.xlsx']);
+    writetable(uniTable, [fn_uni, '.csv']);
+end
 
 % %% Test
 % boldfiledir = fullfile(boldPath, 'main_sm0_self1.rh', 'beta.nii.gz');
