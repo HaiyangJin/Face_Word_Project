@@ -8,7 +8,9 @@ subjCode_cell = strsplit(subjCode_bold, '_');
 
 subjCode = subjCode_cell{1};
 
+fs = fs_setup;
+subjdir = dir(fullfile(fs.subjects, [subjCode '*']));
 
-subjCode_mri = [subjCode '*'];
+subjCode_mri = subjdir.name;
 
 end
