@@ -92,8 +92,14 @@ for iLabel = 1:nLabel
             thisAnalysisFolder = fullfile(boldPath, analysisName);
             thisBoldFilename = fullfile(thisAnalysisFolder, 'beta.nii.gz'); %%% here (the functional data file)
             
+            % load paradigm file
+            thisRunFolder = fullfile(boldPath, runNames{iRun});
+            parFileDir = dir(fullfile(thisRunFolder, parFile));
+            parInfo = fs_readpar(fullfile(parFileDir.folder, parFileDir.name));
+            
             % load the nifti from FreeSurfer
             dt_all = cosmo_fmri_fs_dataset(thisBoldFilename); % with the whole brain
+            dt_all.samples = dt_all.samples(1 : size(parInfo, 1), :);
             
             % apply the mask
             roiMask = zeros(1, size(dt_all.samples, 2));
@@ -101,10 +107,6 @@ for iLabel = 1:nLabel
             this_dt = cosmo_slice(dt_all, logical(roiMask), 2); % apply the roi mask to the whole dataset
             
             % add attributes
-            thisRunFolder = fullfile(boldPath, runNames{iRun});
-            parFileDir = dir(fullfile(thisRunFolder, 'main.par'));
-            parInfo = fs_readpar(fullfile(parFileDir.folder, parFileDir.name));
-            
             this_dt.sa.targets = parInfo.Condition;
             this_dt.sa.labels = parInfo.Label;
             this_dt.sa.chunks = repmat(iRun, size(parInfo, 1), 1);

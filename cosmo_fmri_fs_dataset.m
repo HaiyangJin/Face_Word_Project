@@ -300,7 +300,7 @@ function ds_all=convert_to_dataset(fn, params)
 %%%%%%%%%%%%%%% load freesurfer data with load_nifti %%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%% added by Haiyang Jin %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             datasamples = load_nifti(original_data);
-            data = datasamples.vol(:, :, :, 1:8);
+            data = datasamples.vol;
             
 %             data=data_converter(data_reader(original_data, raw_header, ...
 %                                                 volumes_or_empty), []);
