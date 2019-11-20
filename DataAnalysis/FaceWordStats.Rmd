@@ -53,9 +53,43 @@ pairOrder_E2 <- c("Chinese_intact-English_intact",
 
 ```
 
-## Data for univarite analysis
+```{r setting for plots}
+# set up the theme for plot and rainclound plot
+# load all the R files in Utilities/
+sapply(list.files('Utilities', "*.R", full.names = TRUE, recursive = TRUE), source)
+
+activationUL <- 2.75
+
+```
+
+## Data from localizer scans
+```{r load data file from localizer scans for univerate analysis}
+# load data file from localizer scans for univerate analysis
+df_loc <- read.csv(fn_loc)
+
+str(df_loc)
+```
+
+```{r clean the loc data}
+df_clean_loc <- {
+  df_loc %>% 
+    mutate(Conditions = factor(Conditions, levels = locOrder)) %>% # convert Conditions to factors
+    select(ExpCode, ROI, SubjCode, Conditions, Resp) 
+}
+
+str(df_clean_loc)
+```
+
+### ROI information
+```{r roi information}
+df_loc %>% 
+  select(ExpCode, ROI, SubjCode, nVertices, LabelSize) %>% 
+  distinct()
+```
+
+## Data from functional scans for univarite analysis
 ```{r load data file for univariate analysis}
-# load data file for univerate analysis
+# load data file from functional scans for univerate analysis
 df_univar <- read.csv(fn_univar)
 
 str(df_univar)
@@ -111,15 +145,77 @@ df_mvpa_acc <- {
 }
 ```
 
-# ROI information
-```{r roi information}
-df_univar %>% 
-  select(ExpCode, ROI, SubjCode, nVertices, LabelSize) %>% 
-  distinct()
+```{r descriptive analyses for mvpa}
+desc_mvpa_acc <- {
+  df_mvpa_acc %>% 
+    group_by(ExpCode, ClassifyPair) %>% 
+    summarize(emmean = mean(Accuracy), Count = n(), SE = sd(Accuracy)/sqrt(Count)) %>%
+    mutate(lower.CL = lower_ci(emmean, SE, Count),
+           upper.CL = upper_ci(emmean, SE, Count)) %>% 
+    ungroup()
+  }
+
 ```
 
 # Experiment 1: faces and words
-## Univariate analyses
+## Univariate analyses for localizer scans
+```{r only keep the univariate data for E1 loc}
+df_loc_E1 <- filter(df_clean_loc, ExpCode == 1) 
+```
+
+### rm-ANOVA
+```{r}
+anova_loc_E1 <- aov_4(Resp ~ Conditions + (Conditions | SubjCode), data = df_loc_E1)
+
+anova_loc_E1
+```
+
+```{r estimated marginal means for loc E1}
+emm_loc_anova_E1 <- emmeans(anova_loc_E1, ~ Conditions)
+
+emm_loc_anova_E1
+```
+
+```{r Post-hoc analysis for anova loc E1}
+contrast(emm_loc_anova_E1, "pairwise")
+
+```
+
+### Linear mixed model
+```{r lmm for E1 loc}
+lmm_loc_E1 <- lmer(Resp ~ Conditions + (1 | SubjCode), data = df_loc_E1)
+
+summary(lmm_loc_E1)
+```
+
+```{r estimated marginal means for lmm loc E1}
+emm_loc_lmm_E1 <- emmeans(lmm_loc_E1, ~ Conditions)
+
+emm_loc_lmm_E1
+```
+
+```{r comparison among levels in Conditions lmm loc E1}
+contrast(emm_loc_lmm_E1, "pairwise")
+```
+
+### Plot
+```{r plots for loc E1 (anova)}
+plot_loc_E1 <- {
+  ggplot(data = as.data.frame(emm_loc_anova_E1), aes(y = emmean, x = Conditions)) + # set the data, varialbes for x and y axises
+    geom_col(position = "dodge", color = "black", alpha = .7) +  # position of columns and countour of columns
+    geom_errorbar(mapping = aes(ymin = lower.CL, ymax = upper.CL), linetype = 1,  # set the error bar
+                  show.legend = FALSE, width = 0.25, alpha = .5,
+                  position = position_dodge(width=0.9)) +
+    scale_y_continuous(expand= c(0, 0), limits = c(0, activationUL), breaks = seq(0, 3, .5)) +  # remove the space between columns and x axis
+    labs(title = "", x = "Stimuli", y = "Neural Responses") +  # set the names for main, x and y axises Subjective Responses for E205
+    general_theme
+}
+
+plot_loc_E1
+```
+
+
+## Univariate analyses for functional scans
 ```{r only keep the univariate data for E1}
 df_univar_E1 <- {
   df_clean_univar %>% 
@@ -172,7 +268,23 @@ contrast(emm_uni_anova_E1, "pairwise", simple = "each", combine = TRUE, adjust =
 
 ```
 
-## Multivariate analyses
+### Plot
+```{r plots for functional scans E1 (anova)}
+plot_uni_E1 <- {
+  ggplot(data = as.data.frame(emm_uni_anova_E1), aes(y = emmean, x = FaceWord, fill = Layout)) + # set the data, varialbes for x and y axises
+    geom_col(position = "dodge", color = "black", alpha = .7) +  # position of columns and countour of columns
+    geom_errorbar(mapping = aes(ymin = lower.CL, ymax = upper.CL), linetype = 1,  # set the error bar
+                  show.legend = FALSE, width = 0.25, alpha = .5,
+                  position = position_dodge(width=0.9)) +
+    scale_y_continuous(expand= c(0, 0), limits = c(0, activationUL), breaks = seq(0, 3, .5)) +  # remove the space between columns and x axis
+    labs(title = "", x = "Stimuli", y = "Neural Responses") +  # set the names for main, x and y axises Subjective Responses for E205
+    general_theme
+}
+
+plot_uni_E1
+```
+
+## Multivariate analyses for functional scans
 ```{r only keep the multivariate (mvpa) data for E1}
 df_mvpa_E1 <- {
   df_clean_mvpa %>% 
@@ -217,8 +329,89 @@ emm_mvpa_E1
 test(emm_mvpa_E1, mu = 0, side = ">")
 ```
 
+### Plot
+```{r plots for functional scans mvpa E1 (anova)}
+
+desc_mvpa_acc_E1 <- {
+  desc_mvpa_acc %>% 
+    filter(ExpCode == 1) %>% 
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E1))
+}
+
+plot_mvpa_E1 <- {
+  ggplot(data = desc_mvpa_acc_E1, aes(y = emmean, x = ClassifyPair)) + # set the data, varialbes for x and y axises
+    geom_col(position = "dodge", color = "black", alpha = .7) +  # position of columns and countour of columns
+    geom_errorbar(mapping = aes(ymin = lower.CL, ymax = upper.CL), linetype = 1,  # set the error bar
+                  show.legend = FALSE, width = 0.25, alpha = .5,
+                  position = position_dodge(width=0.9)) +
+    geom_hline(yintercept = c(0.5, 1), linetype = 5, alpha = 0.5) +  # add the line for 0.5 and 1 (y)
+    scale_y_continuous(expand= c(0, 0), limits = c(0, 1.1), breaks = seq(0, 1, .25)) +  # remove the space between columns and x axis
+    scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+    labs(title = "", x = "Stimuli", y = "Neural Responses") +  # set the names for main, x and y axises Subjective Responses for E205
+    general_theme 
+  # theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+}
+
+plot_mvpa_E1
+```
+
 # Experiment 2: Chinese and English
-## Univariate analysis
+## Univariate analyses for localizer scans
+```{r only keep the univariate data for E2 loc}
+df_loc_E2 <- filter(df_clean_loc, ExpCode == 2) 
+```
+
+### rm-ANOVA
+```{r}
+anova_loc_E2 <- aov_4(Resp ~ Conditions + (Conditions | SubjCode), data = df_loc_E2)
+
+anova_loc_E2
+```
+
+```{r estimated marginal means for loc E2}
+emm_loc_anova_E2 <- emmeans(anova_loc_E2, ~ Conditions)
+
+emm_loc_anova_E2
+```
+
+```{r Post-hoc analysis for anova loc E2}
+contrast(emm_loc_anova_E2, "pairwise")
+```
+
+### Linear mixed model
+```{r lmm for E2 loc}
+lmm_loc_E2 <- lmer(Resp ~ Conditions + (1 | SubjCode), data = df_loc_E2)
+
+summary(lmm_loc_E2)
+```
+
+```{r estimated marginal means for lmm loc E2}
+emm_loc_lmm_E2 <- emmeans(lmm_loc_E2, ~ Conditions)
+
+emm_loc_lmm_E2
+```
+
+```{r comparison among levels in Conditions lmm loc E2}
+contrast(emm_loc_lmm_E2, "pairwise")
+```
+
+### Plot
+```{r plots for loc E2 (anova)}
+plot_loc_E2 <- {
+  ggplot(data = as.data.frame(emm_loc_anova_E2), aes(y = emmean, x = Conditions)) + # set the data, varialbes for x and y axises
+    geom_col(position = "dodge", color = "black", alpha = .7) +  # position of columns and countour of columns
+    geom_errorbar(mapping = aes(ymin = lower.CL, ymax = upper.CL), linetype = 1,  # set the error bar
+                  show.legend = FALSE, width = 0.25, alpha = .5,
+                  position = position_dodge(width=0.9)) +
+    scale_y_continuous(expand= c(0, 0), limits = c(0, activationUL), breaks = seq(0, 3, .5)) +  # remove the space between columns and x axis
+    labs(title = "", x = "Stimuli", y = "Neural Responses") +  # set the names for main, x and y axises Subjective Responses for E205
+    general_theme
+}
+
+plot_loc_E2
+```
+
+## Univariate analysis for functional scans
 ```{r only keep the univariate data for E2}
 
 df_univar_E2<- {
@@ -239,24 +432,43 @@ df_univar_agg_E2<- {
 ```{r anova for univariate E2}
 anova_uni_E2 <- aov_4(meanResp ~ FaceWord * Layout + (1 + FaceWord * Layout | SubjCode), data = df_univar_agg_E2)
 
-summary(anova_uni_E2)
+anova_uni_E2
 ```
 
 ```{r estimated marginal means for univairate E2}
 
-emm_uni_E2 <- emmeans(anova_uni_E2, ~ FaceWord * Layout)
+emm_uni_anova_E2 <- emmeans(anova_uni_E2, ~ FaceWord * Layout)
 
-emm_uni_E2
+emm_uni_anova_E2 %>% 
+  as.data.frame() %>% 
+  arrange(FaceWord)
 ```
 
 ```{r}
-# contrast(emm_uni_E2, "pairwise")
+# contrast(emm_uni_anova_E2, "pairwise")
 # 
-# contrast(emm_uni_E2, interaction = "pairwise")
+# contrast(emm_uni_anova_E2, interaction = "pairwise")
+
+contrast(emm_uni_anova_E2, "pairwise", simple = "each", combine = TRUE, adjust = "none")
 ```
 
+### Plot
+```{r plots for functional scans E2 (anova)}
+plot_uni_E2 <- {
+  ggplot(data = as.data.frame(emm_uni_anova_E2), aes(y = emmean, x = FaceWord, fill = Layout)) + # set the data, varialbes for x and y axises
+    geom_col(position = "dodge", color = "black", alpha = .7) +  # position of columns and countour of columns
+    geom_errorbar(mapping = aes(ymin = lower.CL, ymax = upper.CL), linetype = 1,  # set the error bar
+                  show.legend = FALSE, width = 0.25, alpha = .5,
+                  position = position_dodge(width=0.9)) +
+    scale_y_continuous(expand= c(0, 0), limits = c(0, activationUL), breaks = seq(0, 3, .5)) +  # remove the space between columns and x axis
+    labs(title = "", x = "Stimuli", y = "Neural Responses") +  # set the names for main, x and y axises Subjective Responses for E205
+    general_theme
+}
 
-## Multivariate analyses
+plot_uni_E2
+```
+
+## Multivariate analyses for functional scans
 ```{r only keep the multivariate (mvpa) data for E2}
 
 df_mvpa_E2 <- {
@@ -300,6 +512,33 @@ emm_mvpa_E2
 
 ```{r one-sample t-test for logistic models E2}
 test(emm_mvpa_E2, mu = 0, side = ">")
+```
+
+
+### Plot
+```{r plots for functional scans mvpa E2 (anova)}
+
+desc_mvpa_acc_E2 <- {
+  desc_mvpa_acc %>% 
+    filter(ExpCode == 2) %>% 
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E2))
+}
+
+plot_mvpa_E2 <- {
+  ggplot(data = desc_mvpa_acc_E2, aes(y = emmean, x = ClassifyPair)) + # set the data, varialbes for x and y axises
+    geom_col(position = "dodge", color = "black", alpha = .7) +  # position of columns and countour of columns
+    geom_errorbar(mapping = aes(ymin = lower.CL, ymax = upper.CL), linetype = 1,  # set the error bar
+                  show.legend = FALSE, width = 0.25, alpha = .5,
+                  position = position_dodge(width=0.9)) +
+    geom_hline(yintercept = c(0.5, 1), linetype = 5, alpha = 0.5) +  # add the line for 0.5 and 1 (y)
+    scale_y_continuous(expand= c(0, 0), limits = c(0, 1.1), breaks = seq(0, 1, .25)) +  # remove the space between columns and x axis
+    scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+    labs(title = "", x = "Stimuli", y = "Neural Responses") +  # set the names for main, x and y axises Subjective Responses for E205
+    general_theme 
+  # theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+}
+
+plot_mvpa_E2
 ```
 
 # Versions of packages used
