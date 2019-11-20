@@ -9,7 +9,7 @@ output:
     toc: true
     toc_depth: 4
     toc_float: 
-      collapsed: true
+      collapsed: false
       smooth_scroll: false
     includes:
       after_body: Utilities/footer.html
@@ -29,10 +29,13 @@ library(emmeans)
 # Load and clean data 
 ```{r assign filenames}
 # assign filenames
-fn_univar <- "FaceWord_Uni.csv"
-fn_cosmo <- "FaceWord_Cosmo.csv"
+fn_loc <- "FaceWord_Loc_Univariate.csv"
+fn_univar <- "FaceWord_Univariate.csv"
+fn_cosmo <- "FaceWord_CosmoMVPA.csv"
 
 # set the order of levels in factors
+locOrder <- c("face", "object", "word", "scrambled")
+
 facewordOrder <- c("face", "word")
 wordsOrder <- c("Chinese", "English")
 layoutOrder <- c("intact", "exchange", "top", "bottom")
@@ -70,7 +73,7 @@ df_clean_univar <- {
 str(df_clean_univar)
 ```
 
-```{r aggregate data for anova}
+```{r aggregate data for running anova}
 df_univar_agg <- {
   df_clean_univar %>% 
     group_by(ExpCode, ROI, SubjCode, FaceWord, Layout) %>% 
@@ -82,7 +85,7 @@ str(df_univar_agg)
 ```
 
 
-## Data from CoSMoMVPA
+## Data from functional scans for CoSMoMVPA
 ```{r load data file from cosmoMVPA}
 df_mvpa <- read.csv(fn_cosmo)
 
@@ -137,25 +140,28 @@ df_univar_agg_E1 <- {
 ```{r anova for univariate E1}
 anova_uni_E1 <- aov_4(meanResp ~ FaceWord * Layout + (1 + FaceWord * Layout | SubjCode), data = df_univar_agg_E1)
 
-summary(anova_uni_E1)
+anova_uni_E1
 ```
 
 ```{r estimated marginal means for univairate E1}
 
-emm_uni_E1 <- emmeans(anova_uni_E1, ~ FaceWord * Layout)
+emm_uni_anova_E1 <- emmeans(anova_uni_E1, ~ FaceWord * Layout)
 
-emm_uni_E1
+emm_uni_anova_E1 %>% 
+  as.data.frame() %>% 
+  arrange(FaceWord)
 ```
 
 
 ```{r}
-# contrast(emmeans(anova_uni_E1, ~ FaceWord), "pairwise")
-#  
-# contrast(emmeans(anova_uni_E1, ~ Layout), "pairwise", adjust = "none")
+contrast(emmeans(anova_uni_E1, ~ FaceWord), "pairwise")
+
+contrast(emmeans(anova_uni_E1, ~ Layout), "pairwise") # , adjust = "none"
 ```
 
 ```{r}
-contrast(emm_uni_E1, interaction = "pairwise", adjust = "none")
+contrast(emm_uni_anova_E1, "pairwise", simple = "each", combine = TRUE, adjust = "none")
+# contrast(emm_uni_anova_E1, interaction = "pairwise") # , adjust = "none"
 ```
 
 ### Linear mixed model
@@ -191,7 +197,6 @@ df_mvpa_acc_E1 %>%
   sapply(function(x) t.test(x, mu = 0.5, alternative = "greater")) # apply one-sample t-test to each column separately 
 
 ```
-
 
 ### Logistic model
 ```{r logistic linear model for results of mvpa E1 }
