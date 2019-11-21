@@ -65,7 +65,7 @@ activationUL <- 2.75
 ## Data from localizer scans
 ```{r load data file from localizer scans for univerate analysis}
 # load data file from localizer scans for univerate analysis
-df_loc <- read.csv(fn_loc)
+df_loc <- read_csv(fn_loc)
 
 str(df_loc)
 ```
@@ -90,7 +90,7 @@ df_loc %>%
 ## Data from functional scans for univarite analysis
 ```{r load data file for univariate analysis}
 # load data file from functional scans for univerate analysis
-df_univar <- read.csv(fn_univar)
+df_univar <- read_csv(fn_univar)
 
 str(df_univar)
 ```
@@ -121,7 +121,7 @@ str(df_univar_agg)
 
 ## Data from functional scans for CoSMoMVPA
 ```{r load data file from cosmoMVPA}
-df_mvpa <- read.csv(fn_cosmo)
+df_mvpa <- read_csv(fn_cosmo)
 
 str(df_mvpa)
 ```
@@ -160,8 +160,14 @@ desc_mvpa_acc <- {
 # Experiment 1: faces and words
 ## Univariate analyses for localizer scans
 ```{r only keep the univariate data for E1 loc}
-df_loc_E1 <- filter(df_clean_loc, ExpCode == 1) 
+df_loc_E1 <- {
+  df_clean_loc %>%  
+    filter(ExpCode == 1) %>% 
+    mutate(SubjCode = as.factor(SubjCode))
+}
+# nlevels(df_loc_E1$SubjCode) # number of subjects
 ```
+The number of subjects included in this analysis is `r nlevels(df_loc_E1$SubjCode)`
 
 ### rm-ANOVA
 ```{r}
@@ -220,16 +226,18 @@ plot_loc_E1
 df_univar_E1 <- {
   df_clean_univar %>% 
     filter(ExpCode == 1) %>% 
-    mutate(FaceWord = factor(FaceWord, levels = facewordOrder))
+    mutate(FaceWord = factor(FaceWord, levels = facewordOrder),
+           SubjCode = as.factor(SubjCode))
 }
   
 df_univar_agg_E1 <- {
   df_univar_agg %>% 
     filter(ExpCode == 1) %>% 
-    mutate(FaceWord = factor(FaceWord, levels = facewordOrder))
+    mutate(FaceWord = factor(FaceWord, levels = facewordOrder),
+           SubjCode = as.factor(SubjCode))
 }
 
-
+# nlevels(df_univar_E1$SubjCode) # number of subjects
 ```
 
 ### rm-ANOVA 
@@ -289,15 +297,18 @@ plot_uni_E1
 df_mvpa_E1 <- {
   df_clean_mvpa %>% 
     filter(ExpCode == 1) %>% 
-    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E1))
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E1),
+           SubjCode = as.factor(SubjCode))
 }
 
 df_mvpa_acc_E1 <- {
   df_mvpa_acc %>% 
     filter(ExpCode == 1) %>% 
-    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E1))
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E1),
+           SubjCode = as.factor(SubjCode))
 }
 
+# nlevels(df_mvpa_E1$SubjCode) # number of subjects
 ```
 
 ### One-sample t-test
@@ -358,7 +369,12 @@ plot_mvpa_E1
 # Experiment 2: Chinese and English
 ## Univariate analyses for localizer scans
 ```{r only keep the univariate data for E2 loc}
-df_loc_E2 <- filter(df_clean_loc, ExpCode == 2) 
+df_loc_E2 <- {
+  df_clean_loc %>% 
+    filter(ExpCode == 2) %>% 
+    mutate(SubjCode = as.factor(SubjCode))
+}
+# nlevels(df_loc_E2$SubjCode) # number of subjects
 ```
 
 ### rm-ANOVA
@@ -417,15 +433,18 @@ plot_loc_E2
 df_univar_E2<- {
   df_clean_univar %>% 
     filter(ExpCode == 2) %>% 
-    mutate(FaceWord = factor(FaceWord, levels = wordsOrder))
+    mutate(FaceWord = factor(FaceWord, levels = wordsOrder),
+           SubjCode = as.factor(SubjCode))
 }
   
 df_univar_agg_E2<- {
   df_univar_agg %>% 
     filter(ExpCode == 2) %>% 
-    mutate(FaceWord = factor(FaceWord, levels = wordsOrder))
+    mutate(FaceWord = factor(FaceWord, levels = wordsOrder),
+           SubjCode = as.factor(SubjCode))
 }
 
+# nlevels(df_univar_E2$SubjCode) # number of subjects
 ```
 
 ### rm-ANOVA 
@@ -474,14 +493,18 @@ plot_uni_E2
 df_mvpa_E2 <- {
   df_clean_mvpa %>% 
     filter(ExpCode == 2) %>% 
-    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E2))
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E2),
+           SubjCode = as.factor(SubjCode))
 }
 
 df_mvpa_acc_E2 <- {
   df_mvpa_acc %>% 
     filter(ExpCode == 2) %>% 
-    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E2))
+    mutate(ClassifyPair = factor(ClassifyPair, levels = pairOrder_E2),
+           SubjCode = as.factor(SubjCode))
 }
+
+# nlevels(df_mvpa_E2$SubjCode) # number of subjects
 ```
 
 ### One-sample t-test
@@ -493,7 +516,6 @@ df_mvpa_acc_E2 %>%
   sapply(function(x) t.test(x, mu = 0.5, alternative = "greater"))
 
 ```
-
 
 ### Logistic model
 ```{r logistic linear model for results of mvpa E2 }
@@ -512,6 +534,17 @@ emm_mvpa_E2
 
 ```{r one-sample t-test for logistic models E2}
 test(emm_mvpa_E2, mu = 0, side = ">")
+```
+
+
+```{r}
+# glm_mvpa_E2_1 <- glm(ACC ~ 1, family = binomial, data = filter(df_mvpa_E2, ClassifyPair == levels(df_mvpa_E2$ClassifyPair)[5]))
+# 
+# # summary(glm_mvpa_E2_1)
+# 
+# emm_mvpa_E2_1 <- emmeans(glm_mvpa_E2_1, ~ 1)
+# 
+# test(emm_mvpa_E2_1, null = 0, side = ">")
 ```
 
 
