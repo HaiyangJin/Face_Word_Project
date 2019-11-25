@@ -6,7 +6,6 @@ function faceword_searchlight(subjCode_bold, expCode, isLR, classifier)
 
 % subjCode_bold = 'faceword01_self';
 % expCode = 1;
-% classPair = {'face_intact', 'word_intact'};
 
 cosmo_warning('once');
 
@@ -167,12 +166,6 @@ for iRun = 1:nRun
     
 end
 
-% stack multiple ds.sample
-if ~isLR
-    ds_all(1,1) = cosmo_stack(ds_cell(:, 1)); % left
-    ds_all(1,2) = cosmo_stack(ds_cell(:, 2)); % right
-end
-
 
 %% Set analysis parameters
 % Use the cosmo_cross_validation_measure and set its parameters
@@ -252,13 +245,9 @@ for iHemi = 1:2
         %% Save results
         % store searchlight results
         output_filename = sprintf('%s.%s-%s.svm', thisHemi, thisPair{1}, thisPair{2});
-        output_path = fullfile(boldPath, 'cosmo_searchlight');
-        output_fn = fullfile(output_path, output_filename);
-        if ~exist(output_path, 'dir')
-            mkdir(output_path);
-        end
-        save([output_fn '.mat'], 'svm_results');
-        fs_cosmo_map2label(svm_results, output_fn, f_inf, subjCode);
+        output_fn = fullfile(subjPath, 'label', output_filename);
+%         save([output_fn '.mat'], 'svm_results');
+        fs_cosmo_map2label(svm_results, output_fn, v_inf, subjCode);
 %         cosmo_map2surface(svm_results, [output_fn '.gii'], 'encoding','ASCII');
 %         cosmo_map2surface(svm_results, [output_fn '.niml.dset'], 'encoding', 'ASCII');
         
