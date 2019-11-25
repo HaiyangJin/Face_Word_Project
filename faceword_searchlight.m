@@ -257,41 +257,13 @@ for iHemi = 1:2
         if ~exist(output_path, 'dir')
             mkdir(output_path);
         end
-        save([output_fn '.mat'], svm_results);
-        cosmo_map2surface(svm_results, [output_fn '.gii']);
-        cosmo_map2surface(svm_results, [output_fn '.niml.dset'], 'encoding', 'ascii');
+        save([output_fn '.mat'], 'svm_results');
+        fs_cosmo_map2label(svm_results, output_fn, f_inf, subjCode);
+%         cosmo_map2surface(svm_results, [output_fn '.gii'], 'encoding','ASCII');
+%         cosmo_map2surface(svm_results, [output_fn '.niml.dset'], 'encoding', 'ASCII');
         
         %% store counts
         
         
     end
 end
-
-
-
-%% Read inflated surface
-[v_inf,f_inf]=surfing_read(inflated_fn);
-fprintf('The inflated surface has %d vertices, %d faces\n',...
-    size(v_inf,1), size(f_inf,1))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
