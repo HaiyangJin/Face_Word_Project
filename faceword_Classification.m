@@ -1,5 +1,5 @@
 %% Input
-labelNames = { % 'roi.rh.f20.f-vs-o.label', ...
+labelNames = { % ...
     'roi.lh.f13.f-vs-o.ffa1.label', ...
     'roi.lh.f20.f-vs-o.ffa1.label', ...
     'roi.lh.f13.f-vs-o.ffa2.label',...
@@ -11,15 +11,16 @@ labelNames = { % 'roi.rh.f20.f-vs-o.label', ...
     'roi.rh.f40.f-vs-o.ffa2.label', ...
     'roi.rh.f20.f-vs-o.label', ...
     'roi.rh.f40.f-vs-o.label'};
+% labelNames = {'roi.rh.f20.f-vs-o.label'};
 runClassifiers = 1; % 1:nclassifiers
 % 1-libsvm; 2-nn; 3-naive bayes; 4-lda; 5-svm(matlab)
 runLoc = 0; % run analysis for localizer
 
 %% Preparation
 % Set the paths for beta files and the labels
-studyPath = fullfile('/Volumes/Atlantic/research/fMRI/faceword/freesurfer/');
-fmriPath = fullfile(studyPath, 'Data_fMRI/');
-mriPath = fullfile(studyPath, 'subjects/');
+FS = fs_setup;
+subjPath = FS.subjects;
+fmriPath = fullfile(subjPath, '..', 'Data_fMRI/');
 
 subjDir = dir(fullfile(fmriPath, 'faceword*_self'));
 nSubj = numel(subjDir);
@@ -61,27 +62,20 @@ for iLabel = 1:nLabel
         
         expCode = ceil(iSubj/(nSubj/2));
         
-        % this subject name (functional)
-        thisSubj = subjDir(iSubj).name;
-        subjCodeFile = dir(fullfile(subjDir(iSubj).folder, subjDir(iSubj).name, 'subjectname'));
-        [~, subjCode] = system(['cat ', fullfile(subjCodeFile.folder, subjCodeFile.name)]);
-        subjNameSplit = strsplit(subjCode, '_');
+        thisSubj = subjDir(iSubj).name;  % this subject name (functional)
+        subjCode = fw_subjcode(thisSubj); % the subject code in SUBJECTS_DIR
         
         % the lable file (mask)
-        labelFolder = erase(thisSubj, '_self');
-        thisLabelPath = dir(fullfile(mriPath, [labelFolder '*'], 'label', thisLabelName));
+        thisLabelFile = fullfile(subjPath, subjCode, 'label', thisLabelName);
         
-        if isempty(thisLabelPath)
+        if ~exist(thisLabelFile, 'file')
             warning('There is no label file (%s) for Subject %s.', thisLabelName, thisSubj); 
             continue % go to next loop (skip this subject)
         end
         
-        thisLabelFile = fullfile(thisLabelPath.folder, thisLabelPath.name);
-        
         % converting the label file to logical matrix
-        labelMatrix = importdata(thisLabelFile, ' ', 2); % read the label file
-        vertexROI = labelMatrix.data(:,1);
-        nVertex = str2double(labelMatrix.textdata{2}); % number of vertices
+        [dtMatrix, nVertex] = fs_label2mat(thisLabelFile);
+        vertexROI = dtMatrix(:,1);
         
         % path to bold files
         boldPath = fullfile(fmriPath, thisSubj, 'bold/');
@@ -150,17 +144,14 @@ for iLabel = 1:nLabel
             
             % the bold file
             analysisName = ['main_sm0_self', num2str(iRun), '.', hemi];
-            thisAnalysisFolder = fullfile(boldPath, analysisName);
-            thisBoldFilename = fullfile(thisAnalysisFolder, 'beta.nii.gz'); %%% here (the functional data file)
+            thisBoldFilename = fullfile(boldPath, analysisName, 'beta.nii.gz'); %%% here (the functional data file)
             
             % load paradigm file
-            thisRunFolder = fullfile(boldPath, runNames{iRun});
-            parFileDir = dir(fullfile(thisRunFolder, parFile));
-            parInfo = fs_readpar(fullfile(parFileDir.folder, parFileDir.name));
+            [parInfo, nCon] = fs_readpar(fullfile(boldPath, runNames{iRun}, parFile));
             
             % load the nifti from FreeSurfer
             dt_all = cosmo_fmri_fs_dataset(thisBoldFilename); % with the whole brain
-            dt_all.samples = dt_all.samples(1 : size(parInfo, 1), :);
+            dt_all.samples = dt_all.samples(1:nCon, :);
             
             % apply the mask
             roiMask = zeros(1, size(dt_all.samples, 2));
@@ -170,7 +161,7 @@ for iLabel = 1:nLabel
             % add attributes
             this_dt.sa.targets = parInfo.Condition;
             this_dt.sa.labels = parInfo.Label;
-            this_dt.sa.chunks = repmat(iRun, size(parInfo, 1), 1);
+            this_dt.sa.chunks = repmat(iRun, nCon, 1);
             
             % save the dt in a cell for further stacking
             ds_cell(1, iRun) = {this_dt};
@@ -190,9 +181,9 @@ for iLabel = 1:nLabel
         this_uni_table.LabelSize = repmat(labelsize, nRowUni, 1);
         this_uni_table.SubjCode = repmat({thisSubj}, nRowUni, 1);
         
-        this_uni_table = [this_uni_table, fs_cosmo_univariate(ds_subj)]; %#ok<AGROW>
+        this_uni_table = [this_uni_table, fs_cosmo_univariate(ds_subj)];  %#ok<AGROW>
 
-        uniTable = [uniTable; this_uni_table]; %#ok<AGROW>
+        uniTable = [uniTable; this_uni_table];  %#ok<AGROW>
 
         
         %% Run MVPA with CoSMoMVPA
@@ -220,7 +211,7 @@ for iLabel = 1:nLabel
         % Run analysis for each pair
         for iPair = 1:nPairs
             
-            % define this classification
+            % define this classification and its mask
             thisPair = classifyPairs(iPair, :);
             thisPairMask = cosmo_match(ds_subj.sa.labels, thisPair);
             
