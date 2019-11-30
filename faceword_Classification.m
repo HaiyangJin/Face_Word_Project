@@ -49,6 +49,7 @@ outputTable = table;
 if runLoc; uniLocTable = table; end
 
 %% Run the analysis 
+wait_f = waitbar(0, '0.00% finished');
 
 % for each ROIs (labels)
 for iLabel = 1:nLabel
@@ -264,9 +265,17 @@ for iLabel = 1:nLabel
             
         end
         
+        % add wait bar
+        progress = ((iLabel-1)*nSubj + iSubj) / (nLabel * nSubj);
+        progress_msg = sprintf('Label: %s.  Subject: %s \n%0.2f%% finished...', ...
+            thisLabelName, thisSubj, progress*100);
+        waitbar(progress, wait_f, progress_msg);
+        
     end
     
 end
+
+close(wait_f); % close the waitbar 
 
 
 if runLoc
