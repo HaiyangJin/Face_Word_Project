@@ -4,11 +4,14 @@ labelNames = { % ...
     'roi.lh.f20.f-vs-o.ffa1.label', ...
     'roi.lh.f13.f-vs-o.ffa2.label',...
     'roi.lh.f13.w-vs-o.label', ...
+    'roi.lh.f13.f-vs-o.label', ...
     'roi.lh.f20.f-vs-o.label', ...
     'roi.lh.f40.f-vs-o.label',...
     'roi.rh.f13.f-vs-o.ffa1.label', ...
+    'roi.rh.f13.f-vs-o.ffa2.label',...
     'roi.rh.f20.f-vs-o.ffa2.label',...
     'roi.rh.f40.f-vs-o.ffa2.label', ...
+    'roi.rh.f13.f-vs-o.label',...
     'roi.rh.f20.f-vs-o.label', ...
     'roi.rh.f40.f-vs-o.label'};
 % labelNames = {'roi.rh.f20.f-vs-o.label'};
@@ -83,7 +86,7 @@ for iLabel = 1:nLabel
         
          % calculate the size of this label file
         locBetaFile = fullfile(boldPath, ['loc_self.' hemi], 'beta.nii.gz');
-        labelsize = fs_labelsize(thisSubj, thisLabelFile, locBetaFile);
+        [labelsize, talCoor] = fw_labelsize(thisSubj, thisLabelFile, locBetaFile);
                 
         % Obtain the run (folder) names
         if runLoc
@@ -129,6 +132,7 @@ for iLabel = 1:nLabel
             this_loc_table.ROI = repmat({thisLabelName}, nRowLocUni, 1);
             this_loc_table.nVertices = repmat(nVertex, nRowLocUni, 1);
             this_loc_table.LabelSize = repmat(labelsize, nRowLocUni, 1);
+            this_loc_table.TalCoordinate = repmat(talCoor, nRowLocUni, 1);
             this_loc_table.SubjCode = repmat({thisSubj}, nRowLocUni, 1);
             
             this_loc_table = [this_loc_table, fs_cosmo_univariate(this_dt)]; %#ok<AGROW>
@@ -180,6 +184,7 @@ for iLabel = 1:nLabel
         this_uni_table.ROI = repmat({thisLabelName}, nRowUni, 1);
         this_uni_table.nVertices = repmat(nVertex, nRowUni, 1);
         this_uni_table.LabelSize = repmat(labelsize, nRowUni, 1);
+        this_uni_table.TalCoordinate = repmat(talCoor, nRowUni, 1);
         this_uni_table.SubjCode = repmat({thisSubj}, nRowUni, 1);
         
         this_uni_table = [this_uni_table, fs_cosmo_univariate(ds_subj)];  %#ok<AGROW>
@@ -247,6 +252,7 @@ for iLabel = 1:nLabel
                 tmpoutput.ROI = repmat({thisLabelName}, nRowTemp, 1);
                 tmpoutput.nVertices = repmat(nVertex, nRowTemp, 1);
                 tmpoutput.LabelSize = repmat(labelsize, nRowTemp, 1);
+                tmpoutput.TalCoordinate = repmat(talCoor, nRowTemp, 1);
                 tmpoutput.SubjCode = repmat({thisSubj}, nRowTemp, 1);
                 
                 tmpoutput.ClassifyPair = repmat({[thisPair{1}, '-', thisPair{2}]}, nRowTemp, 1);
