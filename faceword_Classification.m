@@ -58,7 +58,7 @@ if runLoc; uniLocTable = table; end
 %% Run the analysis 
 wait_f = waitbar(0, '0.00% finished');
 
-% for each ROIs (labels)
+% for each label
 for iLabel = 1:nLabel
     
     thisLabelName = labelNames{iLabel};
@@ -83,7 +83,7 @@ for iLabel = 1:nLabel
         
         % converting the label file to logical matrix
         [dtMatrix, nVertex] = fs_label2mat(thisLabelFile);
-        vertexROI = dtMatrix(:,1);
+        vtxNum = dtMatrix(:,1);
         
         % path to bold files
         boldPath = fullfile(fmriPath, thisSubj, 'bold/');
@@ -122,7 +122,7 @@ for iLabel = 1:nLabel
             
             % apply the mask
             roiMask = zeros(1, size(dt_all.samples, 2));
-            roiMask(vertexROI) = 1; 
+            roiMask(vtxNum) = 1; 
             this_dt = cosmo_slice(dt_all, logical(roiMask), 2); % apply the roi mask to the whole dataset
             
             % add attributes
@@ -133,7 +133,7 @@ for iLabel = 1:nLabel
         
             this_loc_table = table;
             this_loc_table.ExpCode = repmat(expCode, nRowLocUni, 1);
-            this_loc_table.ROI = repmat({thisLabelName}, nRowLocUni, 1);
+            this_loc_table.Label = repmat({thisLabelName}, nRowLocUni, 1);
             this_loc_table.nVertices = repmat(nVertex, nRowLocUni, 1);
             this_loc_table.LabelSize = repmat(labelsize, nRowLocUni, 1);
             this_loc_table.TalCoordinate = repmat(talCoor, nRowLocUni, 1);
@@ -164,7 +164,7 @@ for iLabel = 1:nLabel
             
             % apply the mask
             roiMask = zeros(1, size(dt_all.samples, 2));
-            roiMask(vertexROI) = 1; 
+            roiMask(vtxNum) = 1; 
             this_dt = cosmo_slice(dt_all, logical(roiMask), 2); % apply the roi mask to the whole dataset
             
             % add attributes
@@ -185,7 +185,7 @@ for iLabel = 1:nLabel
         
         this_uni_table = table;
         this_uni_table.ExpCode = repmat(expCode, nRowUni, 1);
-        this_uni_table.ROI = repmat({thisLabelName}, nRowUni, 1);
+        this_uni_table.Label = repmat({thisLabelName}, nRowUni, 1);
         this_uni_table.nVertices = repmat(nVertex, nRowUni, 1);
         this_uni_table.LabelSize = repmat(labelsize, nRowUni, 1);
         this_uni_table.TalCoordinate = repmat(talCoor, nRowUni, 1);
@@ -253,7 +253,7 @@ for iLabel = 1:nLabel
                 nRowTemp = numel(predicted_ds.sa.targets);
                 
                 tmpoutput.ExpCode = repmat(expCode, nRowTemp, 1);
-                tmpoutput.ROI = repmat({thisLabelName}, nRowTemp, 1);
+                tmpoutput.Label = repmat({thisLabelName}, nRowTemp, 1);
                 tmpoutput.nVertices = repmat(nVertex, nRowTemp, 1);
                 tmpoutput.LabelSize = repmat(labelsize, nRowTemp, 1);
                 tmpoutput.TalCoordinate = repmat(talCoor, nRowTemp, 1);
