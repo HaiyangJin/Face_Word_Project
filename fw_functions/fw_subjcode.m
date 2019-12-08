@@ -1,4 +1,4 @@
-function subjCode_mri = fw_subjcode(subjCode_bold)
+function subjCode = fw_subjcode(subjCode_bold)
 % This function is specific for FaceWord project.
 % This function get the subjCode for $SUBJECTS_DIR in FreeSurfer
 %
@@ -11,6 +11,6 @@ subjCode = subjCode_cell{1};
 fs = fs_setup;
 subjdir = dir(fullfile(fs.subjects, [subjCode '*']));
 
-subjCode_mri = subjdir.name;
+subjCode = subjdir.name;
 
 end
