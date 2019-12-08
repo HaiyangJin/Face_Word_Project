@@ -101,9 +101,7 @@ for iLabel = 1:nLabel
             parFile = 'main.par';
         end
         
-        runList = importdata(fullfile(boldPath, runFile))';
-        runNames = arrayfun(@(x) sprintf('%03d', x), runList, 'UniformOutput', false);
-        nRun = numel(runList);
+        [runNames, nRun] = fs_readrun(fullfile(boldPath, runFile));
         
         if runLoc
             
