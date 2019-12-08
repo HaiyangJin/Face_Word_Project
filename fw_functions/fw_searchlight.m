@@ -1,24 +1,41 @@
-function fw_searchlight(subjCode_bold, expCode, isLR, classifier)
+function fw_searchlight(subjCode_bold, expCode, file_surfcoor, combineHemi, classifier)
 % This function does the searchlight analyses for the faceword project
 % with CoSMoMVPA. Data were analyzed with FreeSurfer.
 %
 % Created by Haiyang (24/11/2019)
-
+%
+% Inputs:
+%    subjCode_bold      the name of subject's bold folder
+%    expCode            experiment code (1 or 2)
+%    file_surfcoor      the coordinate file for vertices ('inflated',
+%                       'white', 'pial') 
+%    combineHemi      if the data of two hemispheres will be combined
+%                       (default is no)
+%    classifier         classifier function handle
+% Output:
+%    the results will be saved as a label file saved at the subject label
+%    folder ($SUBJECTS_DIR/subjCode/label)
+%
 % subjCode_bold = 'faceword01_self';
 % expCode = 1;
 
 cosmo_warning('once');
 
-if nargin < 3 || isempty(isLR)
-    isLR = 0;
+if nargin < 3 || isempty(file_surfcoor)
+    file_surfcoor = 'inflated';
 end
-if nargin < 4 || isempty(classifier)
+if nargin < 4 || isempty(combineHemi)
+    combineHemi = 0;
+end
+if nargin < 5 || isempty(classifier)
     classifier = @cosmo_classify_libsvm;
 end
 
 
 %% Preparation
 FS = fs_setup;
+hemis = FS.hemis;
+nHemi = FS.nHemi;
 fMRIPath = fullfile(FS.subjects, '..', 'Data_fMRI');
 
 % check if there is the functional subject folder
@@ -33,7 +50,6 @@ subjPath = fullfile(FS.subjects, subjCode);
 if ~exist(subjPath, 'dir')
     error('Cannot find %s in FreeSurfer subject folder (SUBJECTS_DIR).', subjCode);
 end
-
 
 % define the pairs for classification
 classifyPairs_E1 = {'face_intact', 'word_intact';
@@ -67,7 +83,7 @@ runNames = arrayfun(@(x) sprintf('%03d', x), runList, 'UniformOutput', false);
 nRun = numel(runList);
 
 % Pre-define the cell array for saving ds 
-ds_cell = cell(nRun, nHemi + isLR); 
+ds_cell = cell(nRun, nHemi + combineHemi); 
 
 % load functional data for each run separately
 for iRun = 1:nRun
@@ -106,7 +122,7 @@ for iRun = 1:nRun
         
     end
     
-    if isLR
+    if combineHemi
         % combine the dt for the two hemispheres
         ds_cell(iRun, 3) = cosmo_stack(ds_cell(iRun, 1:2), 2);
     end
