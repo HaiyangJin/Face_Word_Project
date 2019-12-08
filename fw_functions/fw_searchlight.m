@@ -53,52 +53,8 @@ classExps = {classifyPairs_E1, classifyPairs_E2};
 classifyPairs = classExps{expCode};
 nPairs = size(classifyPairs, 1);
 
-
-%% Convert surface files (white, pial, and inflated) to ASCII if necessary
-surfPath = fullfile(subjPath, 'surf');
-
-surfExt = {'white', 'pial', 'inflated'};
-hemis = {'lh', 'rh'};
-[~, i_white] = ismember('white', surfExt);
-[~, i_pial] = ismember('pial', surfExt);
-[~, i_inf] = ismember('inflated', surfExt);
-
-nSurfExt = numel(surfExt);
-nHemi = numel(hemis);
-
-% Create a cell for saving ASCII filenames for both hemisphere
-ascFileCell = cell(nSurfExt, nHemi);
-vCell = cell(nSurfExt, nHemi+1); % left, right, and merged
-fCell = cell(nSurfExt, nHemi+1); % left, right, and merged
-
-% Convert surface file to ASCII (with functions in FreeSurfer)
-for iSurfExt = 1:nSurfExt
-    
-    for iHemi = 1:nHemi
-        
-        % the surface and its asc filename
-        thisSurfFile = [hemis{iHemi} '.' surfExt{iSurfExt}];
-        thisASC = [thisSurfFile '.asc'];
-        
-        thisSurfPath = fullfile(surfPath, thisSurfFile);
-        thisASCPath = fullfile(surfPath, thisASC);
-        
-        if ~exist(thisASCPath, 'file')
-            % convert the surface file to ASCII file
-            asc_fscommand = sprintf('mris_convert %s %s', thisSurfPath, thisASCPath);
-            system(asc_fscommand);
-        end
-        
-        % save the filename in the cell
-        ascFileCell(iSurfExt, iHemi) = {thisASCPath};
-        
-        [vCell{iSurfExt, iHemi}, fCell{iSurfExt, iHemi}] = surfing_read(thisASCPath);
-    end
-    
-    % Combine ASCII for two hemispheres together (with the order lh, rh)
-    [vCell{iSurfExt, 3}, fCell{iSurfExt, 3}] = merge_surfaces(ascFileCell(iSurfExt, :));
-    
-end
+% load vertex and face coordinates
+[vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, file_surfcoor, combineHemi);
 
 
 %% Load functional data
@@ -186,21 +142,15 @@ for iHemi = 1:2
     % - nbrhood has the neighborhood information
     % - vo and fo are vertices and faces of the output surface
     % - out2in is the mapping from output to input surface
-    feature_count = 100;
+    feature_count = 200;
     
     % ds for this hemisphere
     ds_hemi = cosmo_stack(ds_cell(:, iHemi));
     
-    %%%%%%%%%%%%%%%%% convert dt from volume to surface %%%%%%%%%%%%%%%%%%%
-    ds_temp = ds_hemi;
-    ds_hemi.a.fdim.labels = {'node_indices'};
-    ds_hemi.a.fdim.values = ds_hemi.a.fdim.values(1,1);
-    ds_hemi.fa.node_indices = 1: numel(ds_hemi.a.fdim.values{1,1});
-    
     %% Surface setting 
     % white, pial, surface for this hemisphere
-    v_inf = vCell{i_inf, iHemi};
-    f_inf = fCell{i_inf, iHemi};
+    v_inf = vtxCell{iHemi};
+    f_inf = faceCell{iHemi};
     surf_def = {v_inf, f_inf};
     
     fprintf('\n\nCalcualte the surficial neighborhood for %s (%s):\n',...
