@@ -83,29 +83,20 @@ for iRun = 1:nRun
         parFileDir = fullfile(boldPath, runNames{iRun}, 'main.par');
         parInfo = fs_readpar(parFileDir);
         
-        % load the nifti from FreeSurfer
-        this_ds = cosmo_fmri_fs_dataset(thisBoldFilename); % with the whole brain
-        this_ds.samples = this_ds.samples(1 : size(parInfo, 1), :);
-        
-        % add sample and dataset attributes
-        this_ds.sa.targets = parInfo.Condition;
-        this_ds.sa.labels = parInfo.Label;
-        this_ds.sa.chunks = repmat(iRun, size(parInfo, 1), 1);
-        
-        this_ds.a.vol.dim(1) = length(this_ds.a.fdim.values{1});
-        
+        % load the nifti from FreeSurfer and add .sa .fa
+        this_ds = fs_cosmo_surface(thisBoldFilename, ...
+            'targets', parInfo.Condition, ...
+            'labels', parInfo.Label, ...
+            'chunks', repmat(iRun, size(parInfo, 1), 1)); 
+                
         % run if combine data from both hemispheres
-        if isLR
-            
-            % update this_ds.a.fdim.values{1:1} as the number of vertices for the
-            % whole brain (size(ascCell{1,3},1)) the number of vertice for white
-            this_ds.a.fdim.values{1:1} = 1:size(vCell{1,3},1);
+        if combineHemi
             
             % update the attribute number for further stack
             if iHemi == 1
                 nVertices = numel(this_ds.a.fdim.values{1, 1});
             else
-                this_ds.fa.i = this_ds.fa.i + nVertices;
+                this_ds.fa.node_indices = this_ds.fa.node_nidices + nVertices;
             end
             
         end
