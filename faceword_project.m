@@ -1,5 +1,13 @@
 
-%% Input
+
+%% Summarize the information of labels
+label_parts = {'roi.*-vs-o.*label', 'roi.*o-vs-scr*.label'};
+output_labelsum = fullfile('~', 'Desktop', 'FaceWord_LabelSummary');
+fs_sumlabelinfo(label_parts, output_labelsum); 
+% [labelSumTable, labelSumLongTable] =fs_sumlabelinfo(label_parts, output_labelsum);
+
+
+%% Classifications with CoSMoMVPA
 labelNames = { % ...
     'roi.lh.f13.o-vs-scr.label',...
     'roi.rh.f13.o-vs-scr.label',...
@@ -25,4 +33,6 @@ outputFolder = fullfile('~', 'Desktop/', 'FW_Classification');
 
 % run the analysis
 [mvpaTable, uniTable, uniLocTable] = fw_classification(labelNames, classifiers, runLoc, outputFolder);
+
+
 
