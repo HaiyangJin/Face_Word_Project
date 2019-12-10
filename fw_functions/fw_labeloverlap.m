@@ -18,7 +18,7 @@ for iC = 1:nC
     theseLabel = fn_labels(c(iC, :));
     
     % load the two label files 
-    mat_cell = cellfun(@(x) fs_label2mat(fullfile(labelFolder, x)), theseLabel, 'UniformOutput', false);
+    mat_cell = cellfun(@(x) fs_readlabel(fullfile(labelFolder, x)), theseLabel, 'UniformOutput', false);
     
     % check if there is overlapping between the two labels
     mat_label1 = mat_cell{1};

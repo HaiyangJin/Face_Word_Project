@@ -92,7 +92,7 @@ for iLabel = 1:nLabel
         end
         
         % converting the label file to logical matrix
-        [dtMatrix, nVertex] = fs_label2mat(thisLabelFile);
+        [dtMatrix, nVertex] = fs_readlabel(thisLabelFile);
         vtxROI = dtMatrix(:, 1);
         
         % path to bold files
