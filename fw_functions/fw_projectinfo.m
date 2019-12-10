@@ -7,6 +7,8 @@ if nargin < 2 || isempty(fn_label)
     fn_label = 'roi*.label';
 end
 
+FW.boldext = bold_filename;
+
 % Copy information from FreeSurfer
 FS = fs_setup;
 FW.subjects = FS.subjects;
