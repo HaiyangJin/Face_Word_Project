@@ -1,3 +1,22 @@
+%% Draw labels
+boldext = 'self';
+FW = fw_projectinfo(boldext);
+contrast_List = {
+    'f-vs-o';
+    'w-vs-o';
+    'o-vs-scr'};
+siglevel = '';
+extraLabelInfo = '';
+
+nCon = numel(contrast_List);
+for iCon = 1:nCon
+    
+    contrast_name = contrast_List{iCon};
+    
+    % draw labels for both hemispheres separately
+    fs_fun_drawlabel(FW, contrast_name, boldext, siglevel, extraLabelInfo);
+    
+end
 
 
 %% Summarize the information of labels
