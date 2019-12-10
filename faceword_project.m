@@ -35,4 +35,21 @@ outputFolder = fullfile('~', 'Desktop/', 'FW_Classification');
 [mvpaTable, uniTable, uniLocTable] = fw_classification(labelNames, classifiers, runLoc, outputFolder);
 
 
+%% Searchlight
+% get setup for FaceWord project
+FW = fw_projectinfo('self');
+
+subjBoldList = FW.subjList;
+nSubj = FW.nSubj;
+
+for iSubj = 1:nSubj
+    
+    thisSubj = subjBoldList{iSubj};
+    
+    expCode = ceil(iSubj/(nSubj/2));
+    
+%     feature_count = 200;
+    fw_searchlight(thisSubj, expCode);
+    
+end
 
