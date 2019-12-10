@@ -1,4 +1,4 @@
-function [mvpaTable, uniTable, uniLocTable] = fw_classification(labelNames, classifiers, runLoc, outputFolder)
+function [mvpaTable, uniTable, uniLocTable] = fw_classification(labelList, classifiers, runLoc, output_path)
 % This function reads data from FreeSurfer and use CoSMoMVPA perform leave
 % one out classifcation. The data for univariate analyses also could be
 % obtained.
@@ -15,7 +15,7 @@ function [mvpaTable, uniTable, uniLocTable] = fw_classification(labelNames, clas
 %
 % Created by Haiyang Jin (9/12/2019)
 
-nLabel = numel(labelNames);
+nLabel = numel(labelList);
 if nargin < 2 || isempty(classifiers)
     [classifiers, class_names, nClass] = fs_cosmo_classifier; % {@cosmo_classify_libsvm}
 else
@@ -26,10 +26,11 @@ if nargin < 3 || isempty(runLoc)
     runLoc = 0;
 end
 
-if nargin < 4 || isempty(outputFolder)
-    outputFolder = fullfile('.', 'Classification');
+if nargin < 4 || isempty(output_path)
+    output_path = fullfile('.');
 end
-if ~exist(outputFolder, 'dir'); mkdir(outputFolder); end
+output_path = fullfile(output_path, 'Classification');
+if ~exist(output_path, 'dir'); mkdir(output_path); end
 
 % define the pairs for classification
 classifyPairs_E1 = {'face_intact', 'word_intact';
@@ -71,7 +72,7 @@ uniLocTable = table;
 % for each label
 for iLabel = 1:nLabel
     
-    thisLabelName = labelNames{iLabel};
+    thisLabelName = labelList{iLabel};
     
     hemi = fs_hemi(thisLabelName);
     
@@ -279,20 +280,20 @@ end
 close(wait_f); % close the waitbar 
 
 if runLoc
-    fn_locuni = fullfile(outputFolder, 'FaceWord_Loc_Univariate');
+    fn_locuni = fullfile(output_path, 'FaceWord_Loc_Univariate');
     save(fn_locuni, 'uniLocTable');
     writetable(uniLocTable, [fn_locuni, '.xlsx']);
     writetable(uniLocTable, [fn_locuni, '.csv']);
 end
 
 % save the output results
-fn_cosmo = fullfile(outputFolder, 'FaceWord_CosmoMVPA');
+fn_cosmo = fullfile(output_path, 'FaceWord_CosmoMVPA');
 save(fn_cosmo, 'mvpaTable');
 mvpaTable(:, 'Confusion') = [];
 writetable(mvpaTable, [fn_cosmo, '.xlsx']);
 writetable(mvpaTable, [fn_cosmo, '.csv']);
 
-fn_uni = fullfile(outputFolder, 'FaceWord_Univariate');
+fn_uni = fullfile(output_path, 'FaceWord_Univariate');
 save(fn_uni, 'uniTable');
 writetable(uniTable, [fn_uni, '.xlsx']);
 writetable(uniTable, [fn_uni, '.csv']);
