@@ -9,13 +9,13 @@ if ~exist(output_path, 'dir'); mkdir(output_path); end
 contrast_List = {
     'f-vs-o';
     'w-vs-o';
-    'o-vs-scr'};
+    'o-vs-scr'
+    };
 siglevel = '';
 extraLabelInfo = '';
 
 nCon = numel(contrast_List);
 for iCon = 1:nCon
-    
     contrast_name = contrast_List{iCon};
     
     % draw labels for both hemispheres separately
@@ -28,8 +28,16 @@ label_parts = {'roi.*-vs-o.*label', 'roi.*o-vs-scr*.label'};
 fs_sumlabelinfo(label_parts, output_path); 
 % [labelSumTable, labelSumLongTable] =fs_sumlabelinfo(label_parts, output_labelsum);
 
+%% Overlaps between labels
+labels = {
+    {'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.ffa1.label', 'roi.lh.f20.f-vs-w.label'};
+    {'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.ffa2.label'}
+    };
 
-%% Information for later
+fs_labeloverlap(labels, output_path);
+
+%% Screenshots of labels
+% screenshots of single labels
 labelList = { % ...
     'roi.lh.f13.o-vs-scr.label';
     'roi.rh.f13.o-vs-scr.label';
