@@ -7,6 +7,9 @@ if nargin < 2 || isempty(fn_label)
     fn_label = 'roi*.label';
 end
 
+if ~strcmp(bold_filename(1), '_')
+    bold_filename = ['_', bold_filename];
+end
 FW.boldext = bold_filename;
 
 % Copy information from FreeSurfer
