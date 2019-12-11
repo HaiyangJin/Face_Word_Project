@@ -82,7 +82,7 @@ for iLabel = 1:nLabel
         expCode = ceil(iSubj/(nSubj/2));
         
         thisSubj = subjList{iSubj};  % this subject name (functional)
-        subjCode = fw_subjcode(thisSubj); % the subject code in SUBJECTS_DIR
+        subjCode = fs_subjcode(thisSubj, projStr.fMRI); % the subject code in SUBJECTS_DIR
         
         % the lable file (mask)
         thisLabelFile = fullfile(subjPath, subjCode, 'label', thisLabelName);

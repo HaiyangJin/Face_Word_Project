@@ -45,7 +45,7 @@ if ~exist(subjPathBold, 'dir')
 end
 
 % check if there is surface folder
-subjCode = fw_subjcode(subjCode_bold); % subjCode in SUBJECTS_DIR
+subjCode = fs_subjcode(subjCode_bold, projStr.fMRI); % subjCode in SUBJECTS_DIR
 subjPath = fullfile(FS.subjects, subjCode);
 if ~exist(subjPath, 'dir')
     error('Cannot find %s in FreeSurfer subject folder (SUBJECTS_DIR).', subjCode);
