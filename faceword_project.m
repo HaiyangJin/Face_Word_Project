@@ -57,18 +57,17 @@ labelList = { % ...
     'roi.rh.f40.f-vs-o.label'
     };
 
-%% Screenshots of labels
-% single labels
 fs_fun_screenshot_label(FW, labelList, output_path);
 
-% multiple lables
+% screenshots of multiple lables
 label_multi = {
-    'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.label', 'roi.lh.f20.f-vs-w.label';
+%     'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.label', 'roi.lh.f20.f-vs-w.label';
 %     'roi.lh.f13.w-vs-o.label', 'roi.lh.f20.f-vs-o.label', 'roi.lh.f13.f-vs-w.label';
     'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.ffa1.label', 'roi.lh.f20.f-vs-w.label';
-    'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.ffa2.label', 'roi.lh.f20.f-vs-w.label'};
-overlay = 1;  % show the contrast of the first label
-fs_fun_screenshot_label(FW, label_multi, overlay, output_path);
+    'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.ffa2.label', 'roi.lh.f20.f-vs-w.label'
+    };
+overlay = 2;  % show the contrast of the first label
+fs_fun_screenshot_label(FW, label_multi, output_path, overlay);
 
 
 %% Classifications with CoSMoMVPA
