@@ -1,27 +1,31 @@
 %% Information used later
+FS = fs_setup;
+projectName = 'faceword';
+funcPath = fullfile(FS.subjects, '..', 'Data_fMRI');
 boldext = 'self';
-FW = fw_projectinfo(boldext);
+FW = fs_fun_projectinfo(projectName, funcPath, boldext);
+
 output_path = fullfile('~', 'Desktop', 'FaceWord');
 if ~exist(output_path, 'dir'); mkdir(output_path); end
 
 
 %% Draw labels
-contrast_List = {
-    'f-vs-o';
-    'w-vs-o';
-    'o-vs-scr'
-    };
-siglevel = '';
-extraLabelInfo = '';
-
-nCon = numel(contrast_List);
-for iCon = 1:nCon
-    contrast_name = contrast_List{iCon};
-    
-    % draw labels for both hemispheres separately
-    fs_fun_drawlabel(FW, contrast_name, siglevel, extraLabelInfo);
-    
-end
+% contrast_List = {
+%     'f-vs-o';
+%     'w-vs-o';
+%     'o-vs-scr'
+%     };
+% siglevel = '';
+% extraLabelInfo = '';
+% 
+% nCon = numel(contrast_List);
+% for iCon = 1:nCon
+%     contrast_name = contrast_List{iCon};
+%     
+%     % draw labels for both hemispheres separately
+%     fs_fun_drawlabel(FW, contrast_name, siglevel, extraLabelInfo);
+%     
+% end
 
 %% Summarize the information of labels
 label_parts = {'roi.*-vs-o.*label', 'roi.*o-vs-scr*.label'};
@@ -118,12 +122,8 @@ fs_fun_cosmo_classification(FW, labelList, classPairs, classifiers, runLoc, outp
 
 file_surfcoor = 'inflated';
 combineHemi = 3;  % for each hemipsheres separately and the whole brain
-classPairs_SL = {
-    'face_intact', 'word_intact';
-    'Chinese_intact', 'English_intact'
-    };
+classPairs_SL = classPairs;
 classifier = 1;
 
 fs_fun_cosmo_searchlight(FW, file_surfcoor, combineHemi, classPairs_SL, classifier);
-
 
