@@ -1,31 +1,27 @@
 %% Information used later
-FS = fs_setup;
-projectName = 'faceword';
-funcPath = fullfile(FS.subjects, '..', 'Data_fMRI');
 boldext = 'self';
-FW = fs_fun_projectinfo(projectName, funcPath, boldext);
-
+FW = fw_projectinfo(boldext);
 output_path = fullfile('~', 'Desktop', 'FaceWord');
 if ~exist(output_path, 'dir'); mkdir(output_path); end
 
 
 %% Draw labels
-% contrast_List = {
-%     'f-vs-o';
-%     'w-vs-o';
-%     'o-vs-scr'
-%     };
-% siglevel = '';
-% extraLabelInfo = '';
-% 
-% nCon = numel(contrast_List);
-% for iCon = 1:nCon
-%     contrast_name = contrast_List{iCon};
-%     
-%     % draw labels for both hemispheres separately
-%     fs_fun_drawlabel(FW, contrast_name, siglevel, extraLabelInfo);
-%     
-% end
+contrast_List = {
+    'f-vs-o';
+    'w-vs-o';
+    'o-vs-scr'
+    };
+siglevel = '';
+extraLabelInfo = '';
+
+nCon = numel(contrast_List);
+for iCon = 1:nCon
+    contrast_name = contrast_List{iCon};
+    
+    % draw labels for both hemispheres separately
+    fs_fun_drawlabel(FW, contrast_name, siglevel, extraLabelInfo);
+    
+end
 
 %% Summarize the information of labels
 label_parts = {'roi.*-vs-o.*label', 'roi.*o-vs-scr*.label'};
@@ -61,7 +57,9 @@ labelList = { % ...
     'roi.rh.f40.f-vs-o.label'
     };
 
-fs_fun_screenshot_label(FW, labelList, output_path);
+% fs_fun_screenshot_label(FW, labelList, output_path);
+fs_fun_screenshot_label(FW, labelList, output_path, '', '', '2,8');
+
 
 % screenshots of multiple lables
 label_multi = {
@@ -70,7 +68,7 @@ label_multi = {
     'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.ffa1.label', 'roi.lh.f20.f-vs-w.label';
     'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.ffa2.label', 'roi.lh.f20.f-vs-w.label'
     };
-overlay = 2;  % show the contrast of the first label
+overlay = 1;  % show the contrast of the first label
 fs_fun_screenshot_label(FW, label_multi, output_path, overlay);
 
 
@@ -122,8 +120,12 @@ fs_fun_cosmo_classification(FW, labelList, classPairs, classifiers, runLoc, outp
 
 file_surfcoor = 'inflated';
 combineHemi = 3;  % for each hemipsheres separately and the whole brain
-classPairs_SL = classPairs;
+classPairs_SL = {
+    'face_intact', 'word_intact';
+    'Chinese_intact', 'English_intact'
+    };
 classifier = 1;
 
 fs_fun_cosmo_searchlight(FW, file_surfcoor, combineHemi, classPairs_SL, classifier);
+
 
