@@ -1,6 +1,12 @@
 %% Information used later
+fs_setup('6.0');
+subjectsPath = '/Volumes/Atlantic/research/fMRI/faceword/freesurfer/subjects';
+fs_subjdir(subjectsPath);
+
+funcPath = '/Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI';
 boldext = 'self';
-FW = fw_projectinfo(boldext);
+FW = fs_fun_projectinfo('faceword', funcPath, boldext);
+
 output_path = fullfile('~', 'Desktop', 'FaceWord');
 if ~exist(output_path, 'dir'); mkdir(output_path); end
 
@@ -69,7 +75,7 @@ label_multi = {
     'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.ffa2.label', 'roi.lh.f20.f-vs-w.label'
     };
 overlay = 1;  % show the contrast of the first label
-fs_fun_screenshot_label(FW, label_multi, output_path, overlay);
+fv_label(FW, label_multi, output_path, overlay);
 
 
 %% Classifications with CoSMoMVPA
@@ -117,15 +123,35 @@ fs_fun_cosmo_classification(FW, labelList, classPairs, classifiers, runLoc, outp
 
 
 %% Searchlight
-
+% run searchlight and save the results as labels
 file_surfcoor = 'inflated';
-combineHemi = 3;  % for each hemipsheres separately and the whole brain
-classPairs_SL = {
-    'face_intact', 'word_intact';
-    'Chinese_intact', 'English_intact'
-    };
+combineHemi = 0;  % 3 for each hemipsheres separately and the whole brain
+% classPairs_SL = {
+%     'face_intact', 'word_intact';
+%     'Chinese_intact', 'English_intact'
+%     };
+classPairs_SL = classPairs;
 classifier = 1;
 
-fs_fun_cosmo_searchlight(FW, file_surfcoor, combineHemi, classPairs_SL, classifier);
+% fs_fun_cosmo_searchlight(FW, file_surfcoor, combineHemi, classPairs_SL, classifier);
+% 
+% % convert label files into mgz files
+% label_parts = {'sl.svm*label'};
+% 
+% for iSubj = 1:FW.nSubj
+%     subjCode = fwSubj.subjList{iSubj};
+%     labelDir = fs_labeldir(subjCode, label_parts);
+%     
+%     cellfun(@(x) fs_label2mgz(subjCode, x), {labelDir.name}, 'uni', false);
+% end
+
+%%%%%%%
+sessCode = FW.sessList(21:30);
+
+fs_fun_cosmo_searchlight(FW, classPairs_SL, sessCode, file_surfcoor, ...
+    combineHemi, classifier); 
+
+
+
 
 
