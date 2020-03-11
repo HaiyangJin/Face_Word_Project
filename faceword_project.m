@@ -7,8 +7,8 @@ funcPath = '/Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI';
 boldext = 'self';
 FW = fs_fun_projectinfo('faceword', funcPath, boldext);
 
-output_path = fullfile('~', 'Desktop', 'FaceWord');
-if ~exist(output_path, 'dir'); mkdir(output_path); end
+outputPath = fullfile('~', 'Desktop', 'FaceWord');
+if ~exist(outputPath, 'dir'); mkdir(outputPath); end
 
 
 %% Draw labels
@@ -31,7 +31,7 @@ end
 
 %% Summarize the information of labels
 label_parts = {'roi.*-vs-o.*label', 'roi.*o-vs-scr*.label'};
-fs_sumlabelinfo(label_parts, output_path); 
+fs_sumlabelinfo(label_parts, outputPath); 
 % [labelSumTable, labelSumLongTable] =fs_sumlabelinfo(label_parts, output_labelsum);
 
 %% Overlaps between labels
@@ -40,7 +40,7 @@ labels = {
     {'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.ffa2.label'}
     };
 
-fs_labeloverlap(labels, output_path);
+fs_labeloverlap(labels, outputPath);
 
 %% Screenshots of labels
 % screenshots of single labels
@@ -64,7 +64,7 @@ labelList = { % ...
     };
 
 % fs_fun_screenshot_label(FW, labelList, output_path);
-fs_fun_screenshot_label(FW, labelList, output_path, '', '', '2,8');
+fs_fun_screenshot_label(FW, labelList, outputPath, '', '', '2,8');
 
 
 % screenshots of multiple lables
@@ -75,7 +75,7 @@ label_multi = {
     'roi.lh.f13.w-vs-o.label', 'roi.lh.f13.f-vs-o.ffa2.label', 'roi.lh.f20.f-vs-w.label'
     };
 overlay = 1;  % show the contrast of the first label
-fv_label(FW, label_multi, output_path, overlay);
+fv_label(FW, label_multi, outputPath, overlay);
 
 
 %% Classifications with CoSMoMVPA
