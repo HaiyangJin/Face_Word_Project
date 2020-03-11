@@ -108,8 +108,8 @@ classifyPairs_E1 = {'face_intact', 'word_intact';
 
 classifyPairs_E2 = {'Chinese_intact', 'English_intact';
     'Chinese_intact', 'Chinese_exchange';
-    'Chinese_top', 'Chinese_bottom';
     'English_intact', 'English_exchange';
+    'Chinese_top', 'Chinese_bottom';
     'English_top', 'English_bottom'};
 classPairs = [classifyPairs_E1; classifyPairs_E2];
 
@@ -118,13 +118,12 @@ classifiers = 1; % 1:nclassifiers
 runLoc = 0; % run analysis for localizer
 
 % run the analysis
-% [mvpaTable, uniTable, uniLocTable] = 
-fs_fun_cosmo_classification(FW, labelList, classPairs, classifiers, runLoc, output_path);
+% [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(FW, labelList, classPairs, classifiers, runLoc, outputPath);
 
 
 %% Searchlight
 % run searchlight and save the results as labels
-file_surfcoor = 'inflated';
+surfType = 'inflated';
 combineHemi = 0;  % 3 for each hemipsheres separately and the whole brain
 % classPairs_SL = {
 %     'face_intact', 'word_intact';
@@ -148,7 +147,7 @@ classifier = 1;
 %%%%%%%
 sessCode = FW.sessList(21:30);
 
-fs_fun_cosmo_searchlight(FW, classPairs_SL, sessCode, file_surfcoor, ...
+fs_fun_cosmo_crosssl(FW, classPairs_SL, sessCode, surfType, ...
     combineHemi, classifier); 
 
 
