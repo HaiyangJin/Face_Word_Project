@@ -151,6 +151,25 @@ fs_fun_cosmo_crosssl(FW, classPairs_SL, sessCode, surfType, ...
     combineHemi, classifier); 
 
 
+%% Similarity test (top+bottom vs. intact and misconfigured)
 
+classPairsSim = {...
+    'face_intact', 'face_exchange';
+    'word_intact', 'word_exchange';
+    'Chinese_intact', 'Chinese_exchange';
+    'English_intact', 'English_exchange'};
 
+condName = {...
+    'face_top', 'face_bottom';
+    'word_top', 'word_bottom';
+    'Chinese_top', 'Chinese_bottom';
+    'English_top', 'English_bottom'};
+
+condWeight = [...
+    0.5, 0.5;
+    0.25, 0.75;
+    0.75, 0.25];
+
+predictTable = fs_fun_cosmo_similarity(FW, labelList, ...
+    classPairsSim, condName, condWeight, outputPath);
 
