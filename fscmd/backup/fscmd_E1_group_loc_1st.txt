@@ -1,0 +1,16 @@
+mkanalysis-sess -analysis loc_sm5_E1_fsaverage.lh -surface fsaverage lh -fwhm 5 -stc even -fsd bold -per-run -event-related -paradigm loc.par -TR 2 -nconditions 4 -gammafit 2.25 1.25 -refeventdur 14 -polyfit 2 -nskip 4 -mcextreg -runlistfile run_loc.txt -force
+mkanalysis-sess -analysis loc_sm5_E1_fsaverage.rh -surface fsaverage rh -fwhm 5 -stc even -fsd bold -per-run -event-related -paradigm loc.par -TR 2 -nconditions 4 -gammafit 2.25 1.25 -refeventdur 14 -polyfit 2 -nskip 4 -mcextreg -runlistfile run_loc.txt -force
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.lh -contrast face-vs-word -a 1 -c 3
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.rh -contrast face-vs-word -a 1 -c 3
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.lh -contrast face-vs-object -a 1 -c 2
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.rh -contrast face-vs-object -a 1 -c 2
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.lh -contrast face-vs-scrambled -a 1 -c 4
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.rh -contrast face-vs-scrambled -a 1 -c 4
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.lh -contrast word-vs-object -a 3 -c 2
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.rh -contrast word-vs-object -a 3 -c 2
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.lh -contrast word-vs-scrambled -a 3 -c 4
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.rh -contrast word-vs-scrambled -a 3 -c 4
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.lh -contrast object-vs-scrambled -a 2 -c 4
+mkcontrast-sess -analysis loc_sm5_E1_fsaverage.rh -contrast object-vs-scrambled -a 2 -c 4
+selxavg3-sess -sf sessid_20Ss -analysis loc_sm5_E1_fsaverage.lh  -overwrite -max-threads
+selxavg3-sess -sf sessid_20Ss -analysis loc_sm5_E1_fsaverage.rh  -overwrite -max-threads

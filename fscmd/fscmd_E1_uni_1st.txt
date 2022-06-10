@@ -1,0 +1,16 @@
+mkanalysis-sess -analysis main_sm5_E1_self.lh -surface self lh -fwhm 5 -fsd bold -per-run -event-related -paradigm main.par -TR 2 -nconditions 8 -gammafit 2.25 1.25 -refeventdur 16 -polyfit 2 -nskip 4 -mcextreg -runlistfile run_Main.txt -force
+mkanalysis-sess -analysis main_sm5_E1_self.rh -surface self rh -fwhm 5 -fsd bold -per-run -event-related -paradigm main.par -TR 2 -nconditions 8 -gammafit 2.25 1.25 -refeventdur 16 -polyfit 2 -nskip 4 -mcextreg -runlistfile run_Main.txt -force
+mkcontrast-sess -analysis main_sm5_E1_self.lh -contrast face_intact-vs-word_intact -a 1 -c 5
+mkcontrast-sess -analysis main_sm5_E1_self.rh -contrast face_intact-vs-word_intact -a 1 -c 5
+mkcontrast-sess -analysis main_sm5_E1_self.lh -contrast face_intact-vs-face_exchange -a 1 -c 2
+mkcontrast-sess -analysis main_sm5_E1_self.rh -contrast face_intact-vs-face_exchange -a 1 -c 2
+mkcontrast-sess -analysis main_sm5_E1_self.lh -contrast word_intact-vs-word_exchange -a 5 -c 6
+mkcontrast-sess -analysis main_sm5_E1_self.rh -contrast word_intact-vs-word_exchange -a 5 -c 6
+mkcontrast-sess -analysis main_sm5_E1_self.lh -contrast face_top-vs-face_bottom -a 3 -c 4
+mkcontrast-sess -analysis main_sm5_E1_self.rh -contrast face_top-vs-face_bottom -a 3 -c 4
+mkcontrast-sess -analysis main_sm5_E1_self.lh -contrast word_top-vs-word_bottom -a 7 -c 8
+mkcontrast-sess -analysis main_sm5_E1_self.rh -contrast word_top-vs-word_bottom -a 7 -c 8
+mkcontrast-sess -analysis main_sm5_E1_self.lh -contrast face-vs-word -a 1 -a 2 -a 3 -a 4 -c 5 -c 6 -c 7 -c 8
+mkcontrast-sess -analysis main_sm5_E1_self.rh -contrast face-vs-word -a 1 -a 2 -a 3 -a 4 -c 5 -c 6 -c 7 -c 8
+selxavg3-sess -sf sessid_E1_self -analysis main_sm5_E1_self.lh  -overwrite -max-threads
+selxavg3-sess -sf sessid_E1_self -analysis main_sm5_E1_self.rh  -overwrite -max-threads

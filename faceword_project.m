@@ -4,8 +4,8 @@ subjectsPath = '/Volumes/Atlantic/research/fMRI/faceword/freesurfer/subjects';
 fs_subjdir(subjectsPath);
 
 funcPath = '/Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI';
-boldext = 'self';
-FW = fs_fun_projectinfo('faceword', funcPath, boldext);
+template = 'self';
+FW = fs_fun_projectinfo(['faceword*' template], funcPath);
 
 outputPath = fullfile('~', 'Desktop', 'FaceWord');
 if ~exist(outputPath, 'dir'); mkdir(outputPath); end
@@ -119,36 +119,6 @@ runLoc = 0; % run analysis for localizer
 
 % run the analysis
 % [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(FW, labelList, classPairs, classifiers, runLoc, outputPath);
-
-
-%% Searchlight
-% run searchlight and save the results as labels
-surfType = 'inflated';
-combineHemi = 0;  % 3 for each hemipsheres separately and the whole brain
-% classPairs_SL = {
-%     'face_intact', 'word_intact';
-%     'Chinese_intact', 'English_intact'
-%     };
-classPairs_SL = classPairs;
-classifier = 1;
-
-% fs_fun_cosmo_searchlight(FW, file_surfcoor, combineHemi, classPairs_SL, classifier);
-% 
-% % convert label files into mgz files
-% label_parts = {'sl.svm*label'};
-% 
-% for iSubj = 1:FW.nSubj
-%     subjCode = fwSubj.subjList{iSubj};
-%     labelDir = fs_labeldir(subjCode, label_parts);
-%     
-%     cellfun(@(x) fs_label2mgz(subjCode, x), {labelDir.name}, 'uni', false);
-% end
-
-%%%%%%%
-sessCode = FW.sessList(21:30);
-
-fs_fun_cosmo_crosssl(FW, classPairs_SL, sessCode, surfType, ...
-    combineHemi, classifier); 
 
 
 %% Similarity test (top+bottom vs. intact and misconfigured)

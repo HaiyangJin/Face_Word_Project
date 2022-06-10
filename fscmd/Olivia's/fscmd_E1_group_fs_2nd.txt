@@ -1,0 +1,48 @@
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.rh -contrast Fintact-vs-Wintact -o group_E1_fs
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.lh -contrast Fintact-vs-Wintact -o group_E1_fs
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.rh -contrast Fintact-vs-exchange -o group_E1_fs
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.lh -contrast Fintact-vs-exchange -o group_E1_fs
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.rh -contrast Ftop-vs-bottom -o group_E1_fs
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.lh -contrast Ftop-vs-bottom -o group_E1_fs
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.rh -contrast Wintact-vs-exchange -o group_E1_fs
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.lh -contrast Wintact-vs-exchange -o group_E1_fs
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.rh -contrast Wtop-vs-bottom -o group_E1_fs
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.lh -contrast Wtop-vs-bottom -o group_E1_fs
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.rh -contrast f-vs-w -o group_E1_fs
+isxconcat-sess -sf sessid_20Ss -analysis main_fs.lh -contrast f-vs-w -o group_E1_fs
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Fintact-vs-Wintact/ces.nii.gz --surface fsaverage rh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Fintact-vs-Wintact/glm-group --save-eres --nii.gz
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Fintact-vs-Wintact/ces.nii.gz --surface fsaverage lh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Fintact-vs-Wintact/glm-group --save-eres --nii.gz
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Fintact-vs-exchange/ces.nii.gz --surface fsaverage rh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Fintact-vs-exchange/glm-group --save-eres --nii.gz
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Fintact-vs-exchange/ces.nii.gz --surface fsaverage lh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Fintact-vs-exchange/glm-group --save-eres --nii.gz
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Ftop-vs-bottom/ces.nii.gz --surface fsaverage rh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Ftop-vs-bottom/glm-group --save-eres --nii.gz
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Ftop-vs-bottom/ces.nii.gz --surface fsaverage lh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Ftop-vs-bottom/glm-group --save-eres --nii.gz
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Wintact-vs-exchange/ces.nii.gz --surface fsaverage rh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Wintact-vs-exchange/glm-group --save-eres --nii.gz
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Wintact-vs-exchange/ces.nii.gz --surface fsaverage lh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Wintact-vs-exchange/glm-group --save-eres --nii.gz
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Wtop-vs-bottom/ces.nii.gz --surface fsaverage rh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Wtop-vs-bottom/glm-group --save-eres --nii.gz
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Wtop-vs-bottom/ces.nii.gz --surface fsaverage lh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Wtop-vs-bottom/glm-group --save-eres --nii.gz
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/f-vs-w/ces.nii.gz --surface fsaverage rh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/f-vs-w/glm-group --save-eres --nii.gz
+mri_glmfit --y /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/f-vs-w/ces.nii.gz --surface fsaverage lh --osgm --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/f-vs-w/glm-group --save-eres --nii.gz
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Fintact-vs-Wintact/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Fintact-vs-Wintact/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Fintact-vs-exchange/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Fintact-vs-exchange/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Ftop-vs-bottom/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Ftop-vs-bottom/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Wintact-vs-exchange/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Wintact-vs-exchange/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Wtop-vs-bottom/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Wtop-vs-bottom/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/f-vs-w/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/f-vs-w/glm-group --perm 10000 2 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Fintact-vs-Wintact/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Fintact-vs-Wintact/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Fintact-vs-exchange/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Fintact-vs-exchange/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Ftop-vs-bottom/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Ftop-vs-bottom/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Wintact-vs-exchange/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Wintact-vs-exchange/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/Wtop-vs-bottom/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/Wtop-vs-bottom/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.rh/f-vs-w/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
+mri_glmfit-sim --glmdir /Volumes/Atlantic/research/fMRI/faceword/freesurfer/Data_fMRI/group_E1_fs/main_fs.lh/f-vs-w/glm-group --perm 10000 3 abs  --cwp 5.000000e-02  --2spaces  --bg 4 --overwrite
